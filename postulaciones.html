@@ -50,10 +50,6 @@ button{
     background:#2563eb;
 }
 
-.danger{
-    background:#dc2626;
-}
-
 .info{
     background:#16a34a;
 }
@@ -78,6 +74,44 @@ small{
     padding:20px;
 }
 
+/* ===================== */
+/* MODAL */
+/* ===================== */
+
+.modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.7);
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-content{
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+    width:90%;
+    max-width:600px;
+    max-height:80vh;
+    overflow:auto;
+}
+
+.close{
+    float:right;
+    cursor:pointer;
+    color:red;
+    font-size:20px;
+}
+
+pre{
+    white-space:pre-wrap;
+    color:white;
+}
+
 </style>
 </head>
 
@@ -96,38 +130,36 @@ small{
 
 </div>
 
-<script>
+<!-- MODAL -->
+<div id="modal" class="modal">
+<div class="modal-content">
 
-/*
-==================================
-VERIFICAR SESIÓN
-==================================
-*/
+<span class="close" onclick="cerrarModal()">✖</span>
+
+<h3>📄 Postulación</h3>
+<br>
+
+<pre id="modalTexto"></pre>
+
+</div>
+</div>
+
+<script>
 
 if(!localStorage.getItem("sesion")){
     window.location.href = "login.html";
 }
 
-/*
-==================================
-CARGAR POSTULACIONES
-==================================
-*/
-
 let postulaciones =
-JSON.parse(
-localStorage.getItem("postulaciones")
-) || [];
+JSON.parse(localStorage.getItem("postulaciones")) || [];
 
-const lista =
-document.getElementById("lista");
+const lista = document.getElementById("lista");
 
 function render(){
 
     lista.innerHTML = "";
 
     if(postulaciones.length === 0){
-
         lista.innerHTML = `
         <div class="empty">
         No hay postulaciones aún.
@@ -151,25 +183,12 @@ function render(){
 
             <div>
 
-                <button class="info"
-                onclick="ver(${index})">
-
+                <button class="info" onclick="ver(${index})">
                 Ver
-
                 </button>
 
-                <button class="primary"
-                onclick="calificar(${index})">
-
+                <button class="primary" onclick="calificar(${index})">
                 Calificar
-
-                </button>
-
-                <button class="danger"
-                onclick="eliminar(${index})">
-
-                Eliminar
-
                 </button>
 
             </div>
@@ -182,11 +201,10 @@ function render(){
 }
 
 /*
-==================================
-VER POSTULACIÓN
-==================================
+========================
+VER EN MODAL
+========================
 */
-
 function ver(index){
 
     const p = postulaciones[index];
@@ -198,16 +216,19 @@ function ver(index){
         texto += `${r.pregunta}: ${r.respuesta}\n`;
     });
 
-    alert(texto);
+    document.getElementById("modalTexto").innerText = texto;
+    document.getElementById("modal").style.display = "flex";
+}
 
+function cerrarModal(){
+    document.getElementById("modal").style.display = "none";
 }
 
 /*
-==================================
-IR A CALIFICAR
-==================================
+========================
+CALIFICAR
+========================
 */
-
 function calificar(index){
 
     localStorage.setItem(
@@ -215,37 +236,8 @@ function calificar(index){
         JSON.stringify(postulaciones[index])
     );
 
-    window.location.href =
-    "calificaciones.html";
-
+    window.location.href = "calificaciones.html";
 }
-
-/*
-==================================
-ELIMINAR POSTULACIÓN
-==================================
-*/
-
-function eliminar(index){
-
-    if(!confirm("¿Eliminar esta postulación?")) return;
-
-    postulaciones.splice(index,1);
-
-    localStorage.setItem(
-        "postulaciones",
-        JSON.stringify(postulaciones)
-    );
-
-    render();
-
-}
-
-/*
-==================================
-INICIO
-==================================
-*/
 
 render();
 
