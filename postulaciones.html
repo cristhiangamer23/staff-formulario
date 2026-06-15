@@ -241,6 +241,22 @@ function calificar(index){
 
 render();
 
+/*
+========================
+RESET MODAL (IMPORTANTE)
+========================
+*/
+
+// ✔ al cargar la página
+window.onload = function(){
+    document.getElementById("modal").style.display = "none";
+};
+
+// ✔ al volver atrás o recargar
+window.addEventListener("pageshow", function () {
+    document.getElementById("modal").style.display = "none";
+});
+
 </script>
 
 </body>
