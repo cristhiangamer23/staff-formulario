@@ -97,7 +97,7 @@ button{
 let preguntas = JSON.parse(localStorage.getItem("form_borrador")) || [];
 
 /* =====================
-   AGREGAR PREGUNTA
+   AGREGAR
 ===================== */
 function agregar(){
 
@@ -141,7 +141,7 @@ render();
 }
 
 /* =====================
-   PUBLICAR + LINK
+   PUBLICAR (SOLO LOCALSTORAGE)
 ===================== */
 function publicar(){
 
@@ -150,22 +150,12 @@ alert("No hay preguntas para publicar");
 return;
 }
 
-/* guardar formulario activo */
+/* 💾 base de datos activa */
 localStorage.setItem("formulario_activo", JSON.stringify(preguntas));
 localStorage.setItem("estado_formulario", "publicado");
 localStorage.setItem("ultima_publicacion", Date.now());
 
-/* generar link */
-let url = window.location.origin + "/formulario.html";
-
-/* copiar link */
-navigator.clipboard.writeText(url);
-
-/* abrir formulario */
-window.open(url, "_blank");
-
-/* aviso */
-alert("✔ Formulario publicado\n📋 Link copiado:\n" + url);
+alert("✔ Formulario publicado correctamente");
 
 }
 
