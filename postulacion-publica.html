@@ -29,52 +29,28 @@ body{
 
 h1{
     text-align:center;
-    margin-bottom:5px;
 }
 
 .subtitle{
     text-align:center;
     color:#6b7280;
-    margin-bottom:25px;
-}
-
-.form-group{
     margin-bottom:20px;
 }
 
-label{
-    font-weight:bold;
-    display:block;
-    margin-bottom:8px;
+#form-area{
+    margin-top:20px;
 }
 
-input[type="text"], textarea{
+/* inputs base */
+input, textarea{
     width:100%;
     padding:12px;
+    margin-top:10px;
     border-radius:8px;
     border:1px solid #ccc;
-    outline:none;
 }
 
-textarea{
-    resize:none;
-}
-
-.question{
-    margin-bottom:25px;
-    padding:15px;
-    border:1px solid #e5e7eb;
-    border-radius:10px;
-    background:#f9fafb;
-}
-
-.options label{
-    display:block;
-    margin-top:8px;
-    font-weight:normal;
-    cursor:pointer;
-}
-
+/* botón */
 button{
     width:100%;
     padding:15px;
@@ -83,25 +59,26 @@ button{
     background:#2563eb;
     color:white;
     font-size:16px;
-    cursor:pointer;
     margin-top:20px;
+    cursor:pointer;
 }
 
 button:hover{
     background:#1d4ed8;
 }
 
-.error{
-    color:red;
-    font-size:13px;
-    display:none;
+/* bloqueado */
+.blocked{
+    text-align:center;
+    padding:40px;
 }
 
-.success{
-    text-align:center;
-    font-size:18px;
-    color:#16a34a;
-    font-weight:bold;
+.blocked h2{
+    color:#dc2626;
+}
+
+.blocked p{
+    color:#6b7280;
 }
 
 </style>
@@ -110,172 +87,67 @@ button:hover{
 <body>
 
 <div class="container">
+<div class="card" id="app">
 
-<div class="card" id="formulario">
-
-<h1>🛡️ Postulación Staff</h1>
-<div class="subtitle">Buenos Aires RP</div>
-
-<div class="form-group">
-<label>Nombre completo *</label>
-<input type="text" id="nombre">
-<div class="error" id="err_nombre">Este campo es obligatorio</div>
-</div>
-
-<div class="form-group">
-<label>Discord *</label>
-<input type="text" id="discord">
-<div class="error" id="err_discord">Este campo es obligatorio</div>
-</div>
-
-<div id="preguntas"></div>
-
-<button onclick="enviar()">Enviar Postulación</button>
+<!-- CONTENIDO DINÁMICO -->
 
 </div>
-
 </div>
 
 <script>
 
 /* =========================
-   PREGUNTAS (tipo Google Forms)
+   ESTADO DEL SISTEMA
 ========================= */
-const preguntas = [
-{
-    texto:"¿Cuántas horas puedes estar activo?",
-    tipo:"texto"
-},
-{
-    texto:"¿Tienes experiencia en servidores RP?",
-    tipo:"opcion",
-    opciones:["Sí","No"]
-},
-{
-    texto:"¿Por qué quieres ser staff?",
-    tipo:"texto"
-}
-];
+let estado = localStorage.getItem("estado_postulacion") || "cerrada";
 
 /* =========================
-   RENDER FORM
+   SI ESTÁ CERRADO
 ========================= */
-const cont = document.getElementById("preguntas");
+if(estado !== "abierta"){
 
-preguntas.forEach((p,i)=>{
+document.getElementById("app").innerHTML = `
+<div class="blocked">
 
-let html = `<div class="question">
-<label>${i+1}. ${p.texto} *</label>`;
+<h2>🚫 Postulaciones cerradas</h2>
 
-if(p.tipo === "texto"){
-html += `
-<textarea id="q_${i}"></textarea>
-<div class="error" id="err_q_${i}">Obligatorio</div>
-`;
-}else{
-html += `<div class="options">`;
+<p>
+En este momento no estamos aceptando nuevas postulaciones.
+</p>
 
-p.opciones.forEach(op=>{
-html += `
-<label>
-<input type="radio" name="q_${i}" value="${op}">
-${op}
-</label>
-`;
-});
+<p>
+Intenta más tarde cuando el sistema esté abierto.
+</p>
 
-html += `
 </div>
-<div class="error" id="err_q_${i}">Selecciona una opción</div>
 `;
-}
 
-html += `</div>`;
-
-cont.innerHTML += html;
-
-});
+}else{
 
 /* =========================
-   VALIDACIÓN + ENVÍO
+   FORMULARIO VACÍO (DINÁMICO)
 ========================= */
-function enviar(){
+document.getElementById("app").innerHTML = `
 
-let ok = true;
+<h1>🛡️ Postulación Staff</h1>
+<div class="subtitle">Buenos Aires RP</div>
 
-const nombre = document.getElementById("nombre").value.trim();
-const discord = document.getElementById("discord").value.trim();
-
-/* validar nombre */
-if(!nombre){
-document.getElementById("err_nombre").style.display="block";
-ok=false;
-}else{
-document.getElementById("err_nombre").style.display="none";
-}
-
-/* validar discord */
-if(!discord){
-document.getElementById("err_discord").style.display="block";
-ok=false;
-}else{
-document.getElementById("err_discord").style.display="none";
-}
-
-/* validar preguntas */
-let respuestas = [];
-
-preguntas.forEach((p,i)=>{
-
-if(p.tipo==="texto"){
-const val = document.getElementById("q_"+i).value.trim();
-
-if(!val){
-document.getElementById("err_q_"+i).style.display="block";
-ok=false;
-}else{
-document.getElementById("err_q_"+i).style.display="none";
-}
-
-respuestas.push({pregunta:p.texto,respuesta:val});
-
-}else{
-
-const sel = document.querySelector(`input[name="q_${i}"]:checked`);
-
-if(!sel){
-document.getElementById("err_q_"+i).style.display="block";
-ok=false;
-}else{
-document.getElementById("err_q_"+i).style.display="none";
-respuestas.push({pregunta:p.texto,respuesta:sel.value});
-}
-
-}
-
-});
-
-if(!ok) return;
-
-/* guardar */
-let data = JSON.parse(localStorage.getItem("postulaciones")) || [];
-
-data.push({
-id:Date.now(),
-nombre,
-discord,
-fecha:new Date().toLocaleDateString(),
-respuestas
-});
-
-localStorage.setItem("postulaciones",JSON.stringify(data));
-
-/* mensaje final */
-document.getElementById("formulario").innerHTML = `
-<div class="success">
-🎉 ¡Postulación enviada correctamente!
+<div id="form-area">
+<!-- aquí tú insertas preguntas desde otro panel -->
 </div>
+
+<button onclick="enviar()">Enviar Postulación</button>
+
 `;
+
+/* =========================
+   ENVÍO GENÉRICO
+========================= */
+window.enviar = function(){
+
+alert("✔ Postulación enviada (conecta aquí tu formulario dinámico)");
+
+}
 
 }
 
