@@ -65,21 +65,10 @@ button{
     margin:5px;
 }
 
-.open{
-    background:#16a34a;
-}
-
-.close{
-    background:#dc2626;
-}
-
-.primary{
-    background:#2563eb;
-}
-
-.logout{
-    background:#ef4444;
-}
+.open{ background:#16a34a; }
+.close{ background:#dc2626; }
+.primary{ background:#2563eb; }
+.logout{ background:#ef4444; }
 
 .menu-btn{
     width:100%;
@@ -200,34 +189,42 @@ function actualizarEstado(){
 }
 
 /* =========================
-   🟢 ABRIR POSTULACIÓN (CORREGIDO)
+   🟢 ABRIR POSTULACIÓN
 ========================= */
 function abrirPostulacion(){
 
     localStorage.setItem("estado_postulacion","abierta");
 
-    // 🔥 RESET COMPLETO DE USUARIOS QUE YA POSTULARON
+    actualizarEstado();
+
+    alert("🟢 Postulación abierta correctamente.");
+}
+
+/* =========================
+   🔴 CERRAR POSTULACIÓN (CORREGIDO)
+========================= */
+function cerrarPostulacion(){
+
+    localStorage.setItem("estado_postulacion","cerrada");
+
+    // 🧹 borrar todo lo enviado por usuarios
+    localStorage.removeItem("postulaciones");
+    localStorage.removeItem("calificaciones");
+
+    // 🧹 borrar bloqueos de usuarios
     Object.keys(localStorage).forEach(key => {
         if(key.startsWith("postulante_")){
             localStorage.removeItem(key);
         }
     });
 
-    actualizarEstado();
-
-    alert("🟢 Postulación abierta. Sistema reiniciado correctamente.");
-}
-
-/* =========================
-   🔴 CERRAR POSTULACIÓN (CORRECTO)
-========================= */
-function cerrarPostulacion(){
-
-    localStorage.setItem("estado_postulacion","cerrada");
+    // 🧹 borrar identidad guardada
+    localStorage.removeItem("discord_usuario");
 
     actualizarEstado();
+    cargarEstadisticas();
 
-    alert("🔴 Postulación cerrada.");
+    alert("🔴 Postulaciones cerradas y datos eliminados correctamente.");
 }
 
 /* =========================
