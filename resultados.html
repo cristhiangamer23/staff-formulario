@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Resultados | RR.HH. Buenos Aires RP</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+}
+
+header{
+    background:#111827;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+button{
+    border:none;
+    padding:12px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    color:white;
+    margin-top:10px;
+}
+
+.primary{
+    background:#2563eb;
+}
+
+.success{
+    background:#16a34a;
+}
+
+.item{
+    background:#334155;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.badge{
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:8px;
+    margin-top:5px;
+}
+
+.aprobado{
+    background:#16a34a;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>📊 Resultados Finales RR.HH.</h2>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<h3>Estadísticas</h3>
+
+<p id="stats"></p>
+
+<button class="success" onclick="enviarDiscord()">
+🚀 Enviar Resultados a Discord
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>Lista de Aprobados</h3>
+
+<div id="aprobados"></div>
+
+</div>
+
+</div>
+
+<script>
+
+/*
+==================================
+VERIFICAR SESIÓN
+==================================
+*/
+
+if(!localStorage.getItem("sesion")){
+    window.location.href = "login.html";
+}
+
+/*
+==================================
+DATOS
+==================================
+*/
+
+const calificaciones =
+JSON.parse(
+localStorage.getItem("calificaciones")
+) || [];
+
+/*
+==================================
+FILTRAR APROBADOS
+==================================
+*/
+
+const aprobados =
+calificaciones.filter(
+c => c.estado === "Aprobado"
+);
+
+/*
+==================================
+ESTADÍSTICAS
+==================================
+*/
+
+document.getElementById("stats").innerHTML = `
+Total de postulaciones: ${calificaciones.length}<br>
+Aprobados: ${aprobados.length}
+`;
+
+/*
+==================================
+LISTA APROBADOS
+==================================
+*/
+
+const cont =
+document.getElementById("aprobados");
+
+if(aprobados.length === 0){
+
+cont.innerHTML = "No hay aprobados.";
+
+}else{
+
+aprobados.forEach(p => {
+
+cont.innerHTML += `
+<div class="item">
+
+<strong>${p.nombre}</strong><br>
+${p.discord}<br>
+
+<div class="badge aprobado">
+${p.puntaje}/100
+</div>
+
+</div>
+`;
+
+});
+
+}
+
+/*
+==================================
+WEBHOOK DISCORD
+==================================
+*/
+
+const WEBHOOK_URL =
+"https://discord.com/api/webhooks/TU_WEBHOOK_AQUI";
+
+function enviarDiscord(){
+
+if(aprobados.length === 0){
+alert("No hay aprobados para enviar.");
+return;
+}
+
+let lista = "";
+
+aprobados.forEach(p => {
+lista += `• ${p.nombre} — ${p.puntaje}/100\n`;
+});
+
+const payload = {
+embeds: [
+{
+title: "🟢 RESULTADOS OFICIALES DE POSTULACIONES STAFF",
+color: 5763719,
+fields: [
+{
+name: "📊 Estadísticas",
+value:
+`• Total de postulaciones: ${calificaciones.length}\n• Aprobados: ${aprobados.length}`
+},
+{
+name: "✅ Aprobados",
+value: lista
+},
+{
+name: "👤 Revisado por",
+value: "Director de RR.HH."
+}
+],
+footer: {
+text: "Buenos Aires RP"
+},
+timestamp: new Date().toISOString()
+}
+]
+};
+
+fetch(WEBHOOK_URL, {
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify(payload)
+})
+.then(() => {
+alert("Resultados enviados a Discord");
+})
+.catch(() => {
+alert("Error al enviar");
+});
+
+}
+
+</script>
+
+</body>
+</html>

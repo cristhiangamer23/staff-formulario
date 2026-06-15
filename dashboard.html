@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard | RR.HH. Buenos Aires RP</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+}
+
+header{
+    background:#111827;
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+}
+
+.stat{
+    text-align:center;
+}
+
+.stat h2{
+    font-size:32px;
+    margin-bottom:10px;
+}
+
+button{
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    color:white;
+    margin:5px;
+}
+
+.open{
+    background:#16a34a;
+}
+
+.close{
+    background:#dc2626;
+}
+
+.primary{
+    background:#2563eb;
+}
+
+.logout{
+    background:#ef4444;
+}
+
+.menu-btn{
+    width:100%;
+    margin-top:10px;
+}
+
+.status{
+    font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+    <h2>🛡️ Panel RR.HH.</h2>
+
+    <div>
+        <span id="usuario"></span>
+
+        <button
+            class="logout"
+            onclick="cerrarSesion()">
+            Cerrar Sesión
+        </button>
+    </div>
+
+</header>
+
+<div class="container">
+
+    <div class="card">
+
+        <h3>Estado de Postulaciones</h3>
+
+        <br>
+
+        <div id="estado" class="status">
+            Cargando...
+        </div>
+
+        <br>
+
+        <button
+            class="open"
+            onclick="abrirPostulacion()">
+
+            🟢 Abrir Postulación
+
+        </button>
+
+        <button
+            class="close"
+            onclick="cerrarPostulacion()">
+
+            🔴 Cerrar Postulación
+
+        </button>
+
+    </div>
+
+    <div class="grid">
+
+        <div class="card stat">
+
+            <h2 id="totalPostulaciones">
+                0
+            </h2>
+
+            <p>Total Postulaciones</p>
+
+        </div>
+
+        <div class="card stat">
+
+            <h2 id="totalAprobados">
+                0
+            </h2>
+
+            <p>Aprobados</p>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h3>Panel de Gestión</h3>
+
+        <button
+            class="primary menu-btn"
+            onclick="location.href='formulario.html'">
+
+            📝 Crear / Editar Formulario
+
+        </button>
+
+        <button
+            class="primary menu-btn"
+            onclick="location.href='postulaciones.html'">
+
+            📂 Ver Postulaciones
+
+        </button>
+
+        <button
+            class="primary menu-btn"
+            onclick="location.href='resultados.html'">
+
+            📊 Resultados
+
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+/*
+==================================
+VERIFICAR SESIÓN
+==================================
+*/
+
+if(!localStorage.getItem("sesion")){
+
+    window.location.href =
+    "login.html";
+
+}
+
+/*
+==================================
+MOSTRAR USUARIO
+==================================
+*/
+
+const user =
+JSON.parse(
+    localStorage.getItem(
+        "usuario_actual"
+    )
+);
+
+if(user){
+
+    document
+    .getElementById("usuario")
+    .innerText =
+    `${user.username} (${user.role})`;
+
+}
+
+/*
+==================================
+ESTADO POSTULACIÓN
+==================================
+*/
+
+function actualizarEstado(){
+
+    const estado =
+    localStorage.getItem(
+        "estado_postulacion"
+    ) || "cerrada";
+
+    document
+    .getElementById("estado")
+    .innerText =
+    estado === "abierta"
+    ? "🟢 ABIERTA"
+    : "🔴 CERRADA";
+
+}
+
+function abrirPostulacion(){
+
+    localStorage.setItem(
+        "estado_postulacion",
+        "abierta"
+    );
+
+    actualizarEstado();
+
+    alert(
+        "Postulación abierta correctamente."
+    );
+
+}
+
+function cerrarPostulacion(){
+
+    localStorage.setItem(
+        "estado_postulacion",
+        "cerrada"
+    );
+
+    actualizarEstado();
+
+    alert(
+        "Postulación cerrada correctamente."
+    );
+
+}
+
+/*
+==================================
+ESTADÍSTICAS
+==================================
+*/
+
+function cargarEstadisticas(){
+
+    const postulaciones =
+    JSON.parse(
+        localStorage.getItem(
+            "postulaciones"
+        )
+    ) || [];
+
+    const calificaciones =
+    JSON.parse(
+        localStorage.getItem(
+            "calificaciones"
+        )
+    ) || [];
+
+    const aprobados =
+    calificaciones.filter(
+        c => c.estado === "Aprobado"
+    );
+
+    document
+    .getElementById(
+        "totalPostulaciones"
+    )
+    .innerText =
+    postulaciones.length;
+
+    document
+    .getElementById(
+        "totalAprobados"
+    )
+    .innerText =
+    aprobados.length;
+
+}
+
+/*
+==================================
+CERRAR SESIÓN
+==================================
+*/
+
+function cerrarSesion(){
+
+    localStorage.removeItem(
+        "sesion"
+    );
+
+    localStorage.removeItem(
+        "usuario_actual"
+    );
+
+    window.location.href =
+    "login.html";
+
+}
+
+/*
+==================================
+INICIO
+==================================
+*/
+
+actualizarEstado();
+cargarEstadisticas();
+
+</script>
+
+</body>
+</html>

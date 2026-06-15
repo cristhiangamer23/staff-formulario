@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Postulaciones | RR.HH. Buenos Aires RP</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+}
+
+header{
+    background:#111827;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:15px;
+}
+
+button{
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    color:white;
+}
+
+.primary{
+    background:#2563eb;
+}
+
+.danger{
+    background:#dc2626;
+}
+
+.info{
+    background:#16a34a;
+}
+
+.item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px;
+    background:#334155;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+small{
+    color:#94a3b8;
+}
+
+.empty{
+    text-align:center;
+    color:#94a3b8;
+    padding:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>📂 Postulaciones Recibidas</h2>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h3>Lista de postulantes</h3>
+<div id="lista"></div>
+</div>
+
+</div>
+
+<script>
+
+/*
+==================================
+VERIFICAR SESIÓN
+==================================
+*/
+
+if(!localStorage.getItem("sesion")){
+    window.location.href = "login.html";
+}
+
+/*
+==================================
+CARGAR POSTULACIONES
+==================================
+*/
+
+let postulaciones =
+JSON.parse(
+localStorage.getItem("postulaciones")
+) || [];
+
+const lista =
+document.getElementById("lista");
+
+function render(){
+
+    lista.innerHTML = "";
+
+    if(postulaciones.length === 0){
+
+        lista.innerHTML = `
+        <div class="empty">
+        No hay postulaciones aún.
+        </div>
+        `;
+        return;
+    }
+
+    postulaciones.forEach((p,index)=>{
+
+        lista.innerHTML += `
+        <div class="item">
+
+            <div>
+                <strong>${p.nombre}</strong>
+                <br>
+                <small>${p.discord}</small>
+                <br>
+                <small>${p.fecha}</small>
+            </div>
+
+            <div>
+
+                <button class="info"
+                onclick="ver(${index})">
+
+                Ver
+
+                </button>
+
+                <button class="primary"
+                onclick="calificar(${index})">
+
+                Calificar
+
+                </button>
+
+                <button class="danger"
+                onclick="eliminar(${index})">
+
+                Eliminar
+
+                </button>
+
+            </div>
+
+        </div>
+        `;
+
+    });
+
+}
+
+/*
+==================================
+VER POSTULACIÓN
+==================================
+*/
+
+function ver(index){
+
+    const p = postulaciones[index];
+
+    let texto =
+    `Nombre: ${p.nombre}\nDiscord: ${p.discord}\n\n`;
+
+    p.respuestas.forEach(r=>{
+        texto += `${r.pregunta}: ${r.respuesta}\n`;
+    });
+
+    alert(texto);
+
+}
+
+/*
+==================================
+IR A CALIFICAR
+==================================
+*/
+
+function calificar(index){
+
+    localStorage.setItem(
+        "postulacion_actual",
+        JSON.stringify(postulaciones[index])
+    );
+
+    window.location.href =
+    "calificaciones.html";
+
+}
+
+/*
+==================================
+ELIMINAR POSTULACIÓN
+==================================
+*/
+
+function eliminar(index){
+
+    if(!confirm("¿Eliminar esta postulación?")) return;
+
+    postulaciones.splice(index,1);
+
+    localStorage.setItem(
+        "postulaciones",
+        JSON.stringify(postulaciones)
+    );
+
+    render();
+
+}
+
+/*
+==================================
+INICIO
+==================================
+*/
+
+render();
+
+</script>
+
+</body>
+</html>

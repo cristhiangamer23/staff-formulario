@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login | RR.HH. Buenos Aires RP</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.login-box{
+    width:420px;
+    max-width:95%;
+    background:#1e293b;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 0 20px rgba(0,0,0,.35);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#94a3b8;
+    margin-bottom:25px;
+}
+
+label{
+    display:block;
+    margin-bottom:6px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    margin-bottom:15px;
+    background:#334155;
+    color:white;
+}
+
+input:focus{
+    outline:none;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+    font-size:15px;
+}
+
+button:hover{
+    opacity:.9;
+}
+
+.error{
+    background:#991b1b;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:15px;
+    display:none;
+}
+
+.footer{
+    margin-top:20px;
+    text-align:center;
+    color:#94a3b8;
+    font-size:13px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+    <h1>🛡️ RR.HH.</h1>
+
+    <div class="subtitle">
+        Buenos Aires RP
+    </div>
+
+    <div id="error" class="error">
+        Usuario o contraseña incorrectos.
+    </div>
+
+    <label>Usuario</label>
+    <input
+        type="text"
+        id="usuario"
+        placeholder="Ingresa tu usuario"
+    >
+
+    <label>Contraseña</label>
+    <input
+        type="password"
+        id="password"
+        placeholder="Ingresa tu contraseña"
+    >
+
+    <button onclick="login()">
+        Iniciar Sesión
+    </button>
+
+    <div class="footer">
+        Acceso restringido a RR.HH. y Dueño.
+    </div>
+
+</div>
+
+<script>
+
+/*
+==================================
+USUARIOS DEL SISTEMA
+==================================
+*/
+
+const USERS = [
+
+    {
+        username:"Cristhian",
+        password:"2030@",
+        role:"Dueño"
+    },
+
+    {
+        username:"Alanproo",
+        password:"2050@",
+        role:"Director RRHH"
+    }
+
+];
+
+/*
+==================================
+LOGIN
+==================================
+*/
+
+function login(){
+
+    const usuario =
+    document.getElementById("usuario")
+    .value
+    .trim();
+
+    const password =
+    document.getElementById("password")
+    .value
+    .trim();
+
+    const user =
+    USERS.find(u =>
+        u.username === usuario &&
+        u.password === password
+    );
+
+    if(!user){
+
+        document
+        .getElementById("error")
+        .style.display = "block";
+
+        return;
+    }
+
+    localStorage.setItem(
+        "sesion",
+        "activa"
+    );
+
+    localStorage.setItem(
+        "usuario_actual",
+        JSON.stringify(user)
+    );
+
+    window.location.href =
+    "dashboard.html";
+}
+
+/*
+==================================
+SI YA HAY SESIÓN
+==================================
+*/
+
+if(localStorage.getItem("sesion")){
+
+    window.location.href =
+    "dashboard.html";
+
+}
+
+</script>
+
+</body>
+</html>

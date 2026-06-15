@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Calificaciones | RR.HH. Buenos Aires RP</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+}
+
+header{
+    background:#111827;
+    padding:20px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:#1e293b;
+    padding:25px;
+    border-radius:12px;
+}
+
+input, textarea{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    margin-bottom:15px;
+    border:none;
+    border-radius:8px;
+    background:#334155;
+    color:white;
+}
+
+button{
+    border:none;
+    padding:12px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    color:white;
+}
+
+.primary{
+    background:#2563eb;
+}
+
+.info{
+    background:#16a34a;
+}
+
+.badge{
+    padding:8px 12px;
+    border-radius:8px;
+    display:inline-block;
+    margin-top:10px;
+    font-weight:bold;
+}
+
+.aprobado{
+    background:#16a34a;
+}
+
+.entrevista{
+    background:#f59e0b;
+}
+
+.observacion{
+    background:#3b82f6;
+}
+
+.rechazado{
+    background:#dc2626;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>⭐ Calificación de Postulante</h2>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<div id="info"></div>
+
+<label>Puntaje (0 - 100)</label>
+
+<input type="number" id="puntaje" min="0" max="100">
+
+<label>Observación</label>
+
+<textarea id="observacion" placeholder="Comentario del evaluador"></textarea>
+
+<div id="resultado"></div>
+
+<br>
+
+<button class="primary" onclick="calcular()">
+Calcular Resultado
+</button>
+
+<button class="info" onclick="guardar()">
+Guardar Evaluación
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+/*
+==================================
+VERIFICAR SESIÓN
+==================================
+*/
+
+if(!localStorage.getItem("sesion")){
+    window.location.href = "login.html";
+}
+
+/*
+==================================
+CARGAR POSTULANTE
+==================================
+*/
+
+const postulante =
+JSON.parse(
+localStorage.getItem("postulacion_actual")
+);
+
+if(!postulante){
+    alert("No hay postulante seleccionado.");
+    window.location.href = "postulaciones.html";
+}
+
+document.getElementById("info").innerHTML = `
+<h3>${postulante.nombre}</h3>
+<p>${postulante.discord}</p>
+<p>${postulante.fecha}</p>
+`;
+
+/*
+==================================
+CLASIFICACIÓN
+==================================
+*/
+
+function obtenerEstado(p){
+
+    if(p >= 85) return "Aprobado";
+    if(p >= 75) return "Entrevista";
+    if(p >= 60) return "Observación";
+    return "Rechazado";
+}
+
+/*
+==================================
+CALCULAR
+==================================
+*/
+
+let estadoActual = "";
+
+function calcular(){
+
+    const puntaje =
+    parseInt(
+    document.getElementById("puntaje").value
+    );
+
+    if(isNaN(puntaje)){
+        alert("Ingresa un puntaje válido");
+        return;
+    }
+
+    estadoActual = obtenerEstado(puntaje);
+
+    let clase = "";
+
+    if(estadoActual === "Aprobado") clase = "aprobado";
+    if(estadoActual === "Entrevista") clase = "entrevista";
+    if(estadoActual === "Observación") clase = "observacion";
+    if(estadoActual === "Rechazado") clase = "rechazado";
+
+    document.getElementById("resultado").innerHTML = `
+        <div class="badge ${clase}">
+            Resultado: ${estadoActual}
+        </div>
+    `;
+}
+
+/*
+==================================
+GUARDAR EVALUACIÓN
+==================================
+*/
+
+function guardar(){
+
+    const puntaje =
+    parseInt(
+    document.getElementById("puntaje").value
+    );
+
+    const observacion =
+    document.getElementById("observacion").value;
+
+    if(isNaN(puntaje)){
+        alert("Debes ingresar un puntaje");
+        return;
+    }
+
+    const evaluaciones =
+    JSON.parse(
+    localStorage.getItem("calificaciones")
+    ) || [];
+
+    evaluaciones.push({
+
+        nombre: postulante.nombre,
+        discord: postulante.discord,
+        fecha: postulante.fecha,
+        puntaje: puntaje,
+        estado: obtenerEstado(puntaje),
+        observacion: observacion
+
+    });
+
+    localStorage.setItem(
+        "calificaciones",
+        JSON.stringify(evaluaciones)
+    );
+
+    alert("Evaluación guardada correctamente");
+
+    window.location.href =
+    "postulaciones.html";
+}
+
+</script>
+
+</body>
+</html>

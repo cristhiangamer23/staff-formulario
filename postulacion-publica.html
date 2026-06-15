@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Postulación Staff | Buenos Aires RP</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:30px;
+}
+
+.card{
+    background:#1e293b;
+    padding:25px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#94a3b8;
+    margin-bottom:25px;
+}
+
+input, textarea{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#334155;
+    color:white;
+    margin-top:8px;
+    margin-bottom:15px;
+}
+
+label{
+    display:block;
+    margin-bottom:10px;
+}
+
+.option{
+    margin-top:10px;
+}
+
+button{
+    width:100%;
+    border:none;
+    padding:14px;
+    border-radius:8px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+    font-size:15px;
+}
+
+.cerrado{
+    text-align:center;
+    font-size:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div id="contenido"></div>
+
+</div>
+
+<script>
+
+const estado =
+localStorage.getItem(
+"estado_postulacion"
+);
+
+const preguntas =
+JSON.parse(
+localStorage.getItem(
+"preguntas"
+)
+) || [];
+
+const contenido =
+document.getElementById(
+"contenido"
+);
+
+if(estado !== "abierta"){
+
+contenido.innerHTML = `
+<div class="card">
+
+<div class="cerrado">
+
+🔴 POSTULACIONES CERRADAS
+
+<br><br>
+
+Actualmente no estamos aceptando
+nuevas solicitudes.
+
+<br><br>
+
+Buenos Aires RP
+
+</div>
+
+</div>
+`;
+
+}else{
+
+let html = `
+
+<div class="card">
+
+<h1>🛡️ Postulación Staff</h1>
+
+<div class="subtitle">
+Buenos Aires RP
+</div>
+
+<label>
+Nombre
+</label>
+
+<input
+id="nombre"
+placeholder="Tu nombre">
+
+<label>
+Discord
+</label>
+
+<input
+id="discord"
+placeholder="usuario#0000">
+
+<div id="preguntas"></div>
+
+<button onclick="enviar()">
+Enviar Postulación
+</button>
+
+</div>
+
+`;
+
+contenido.innerHTML = html;
+
+const contenedor =
+document.getElementById(
+"preguntas"
+);
+
+preguntas.forEach(
+(p,index)=>{
+
+let bloque = `
+<br>
+
+<label>
+${index+1}. ${p.texto}
+</label>
+`;
+
+if(
+p.tipo === "texto"
+){
+
+bloque += `
+<textarea
+id="respuesta_${index}"
+placeholder="Escribe tu respuesta">
+</textarea>
+`;
+
+}else{
+
+p.opciones.forEach(
+(op,n)=>{
+
+bloque += `
+<div class="option">
+
+<input
+type="radio"
+name="respuesta_${index}"
+value="${op}">
+
+${op}
+
+</div>
+`;
+
+});
+
+}
+
+contenedor.innerHTML += bloque;
+
+});
+
+}
+
+function enviar(){
+
+const nombre =
+document
+.getElementById(
+"nombre"
+)
+.value
+.trim();
+
+const discord =
+document
+.getElementById(
+"discord"
+)
+.value
+.trim();
+
+if(!nombre || !discord){
+
+alert(
+"Completa los datos."
+);
+
+return;
+
+}
+
+let respuestas = [];
+
+preguntas.forEach(
+(p,index)=>{
+
+let respuesta = "";
+
+if(
+p.tipo === "texto"
+){
+
+respuesta =
+document
+.getElementById(
+`respuesta_${index}`
+)
+.value;
+
+}else{
+
+const seleccionada =
+document.querySelector(
+`input[name="respuesta_${index}"]:checked`
+);
+
+if(seleccionada){
+
+respuesta =
+seleccionada.value;
+
+}
+
+}
+
+respuestas.push({
+
+pregunta:p.texto,
+respuesta
+
+});
+
+});
+
+const postulaciones =
+JSON.parse(
+localStorage.getItem(
+"postulaciones"
+)
+) || [];
+
+postulaciones.push({
+
+id:Date.now(),
+
+nombre,
+
+discord,
+
+fecha:new Date()
+.toLocaleDateString(),
+
+respuestas,
+
+estado:"Pendiente"
+
+});
+
+localStorage.setItem(
+
+"postulaciones",
+
+JSON.stringify(
+postulaciones
+)
+
+);
+
+alert(
+"Postulación enviada correctamente."
+);
+
+location.reload();
+
+}
+
+</script>
+
+</body>
+</html>

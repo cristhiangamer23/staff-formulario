@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Buenos Aires RP | Sistema RR.HH.</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.card{
+    background:#1e293b;
+    width:500px;
+    max-width:95%;
+    padding:40px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 0 20px rgba(0,0,0,.3);
+}
+
+h1{
+    margin-bottom:15px;
+}
+
+p{
+    color:#cbd5e1;
+    margin-bottom:25px;
+}
+
+.loader{
+    width:60px;
+    height:60px;
+    border:5px solid #334155;
+    border-top:5px solid #3b82f6;
+    border-radius:50%;
+    margin:auto;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    100%{
+        transform:rotate(360deg);
+    }
+}
+
+.small{
+    margin-top:20px;
+    font-size:13px;
+    color:#94a3b8;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h1>🛡️ Buenos Aires RP</h1>
+
+    <p>
+        Sistema de Recursos Humanos
+    </p>
+
+    <div class="loader"></div>
+
+    <div class="small">
+        Comprobando sesión...
+    </div>
+
+</div>
+
+<script>
+
+/*
+------------------------------------
+CONFIGURACIÓN INICIAL
+------------------------------------
+*/
+
+if(!localStorage.getItem("estado_postulacion")){
+    localStorage.setItem(
+        "estado_postulacion",
+        "cerrada"
+    );
+}
+
+if(!localStorage.getItem("preguntas")){
+    localStorage.setItem(
+        "preguntas",
+        JSON.stringify([])
+    );
+}
+
+if(!localStorage.getItem("postulaciones")){
+    localStorage.setItem(
+        "postulaciones",
+        JSON.stringify([])
+    );
+}
+
+if(!localStorage.getItem("calificaciones")){
+    localStorage.setItem(
+        "calificaciones",
+        JSON.stringify([])
+    );
+}
+
+/*
+------------------------------------
+VERIFICAR SESIÓN
+------------------------------------
+*/
+
+setTimeout(()=>{
+
+    const sesion =
+    localStorage.getItem("sesion");
+
+    if(sesion){
+
+        window.location.href =
+        "pages/dashboard.html";
+
+    }else{
+
+        window.location.href =
+        "pages/login.html";
+
+    }
+
+},1500);
+
+</script>
+
+</body>
+</html>
