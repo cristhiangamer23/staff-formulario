@@ -136,17 +136,13 @@ button{
     <div class="grid">
 
         <div class="card stat">
-
             <h2 id="totalPostulaciones">0</h2>
             <p>Total Postulaciones</p>
-
         </div>
 
         <div class="card stat">
-
             <h2 id="totalAprobados">0</h2>
             <p>Aprobados</p>
-
         </div>
 
     </div>
@@ -196,33 +192,44 @@ function actualizarEstado(){
 
 }
 
+/*
+========================
+🟢 ABRIR POSTULACIÓN
+========================
+*/
 function abrirPostulacion(){
 
     localStorage.setItem("estado_postulacion","abierta");
 
+    // 🔥 permitir volver a postularse
+    localStorage.removeItem("ya_postulo");
+
     actualizarEstado();
 
-    alert("Postulación abierta correctamente.");
+    alert("🟢 Postulación abierta. Ya pueden volver a postularse.");
 }
 
 /*
-==================================
-🔴 CERRAR Y REINICIAR TODO
-==================================
+========================
+🔴 CERRAR POSTULACIÓN
+========================
 */
 function cerrarPostulacion(){
 
     localStorage.setItem("estado_postulacion", "cerrada");
 
-    // 🧹 LIMPIAR BASE DE DATOS LOCAL
+    // 🧹 borrar todo el sistema
     localStorage.removeItem("postulaciones");
     localStorage.removeItem("calificaciones");
     localStorage.removeItem("resultados");
 
+    // 🔥 reset bloqueo de envío
+    localStorage.removeItem("ya_postulo");
+
     actualizarEstado();
     cargarEstadisticas();
 
-    alert("🔴 Postulaciones cerradas y sistema reiniciado completamente.");
+    alert("🔴 Postulación cerrada y sistema reiniciado completamente.");
 }
 
 function cargarEstadisticas(){
