@@ -110,13 +110,17 @@ const contenido = document.getElementById("contenido");
 const estado = localStorage.getItem("estado_postulacion");
 const preguntas = JSON.parse(localStorage.getItem("preguntas")) || [];
 
-// 🔥 IDENTIDAD POR PERSONA
+// 🔥 identidad usuario
 const discord = localStorage.getItem("discord_usuario");
 
 let yaPostulo = false;
 
 if(discord){
-    if(localStorage.getItem("postulante_" + discord) === "si"){
+
+    const bloqueado = localStorage.getItem("postulante_" + discord);
+
+    // ✔ SOLO bloquea si el sistema está abierto
+    if(bloqueado === "si" && estado === "abierta"){
         yaPostulo = true;
     }
 }
@@ -255,11 +259,11 @@ estado:"Pendiente"
 
 localStorage.setItem("postulaciones", JSON.stringify(postulaciones));
 
-// 🔥 marcar usuario como postulado
+// 🔥 marcar como postulado
 localStorage.setItem("postulante_" + discordInput, "si");
 
 // =========================
-// MENSAJE FINAL PROFESIONAL
+// MENSAJE FINAL
 // =========================
 
 document.getElementById("contenido").innerHTML = `
