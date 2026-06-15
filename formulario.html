@@ -66,7 +66,7 @@ button{
 <div class="container">
 
 <div class="card">
-<h2>🧩 Constructor de Formulario</h2>
+<h2>🧩 Constructor de Formulario RR.HH</h2>
 
 <input id="pregunta" placeholder="Escribe la pregunta">
 
@@ -75,7 +75,7 @@ button{
 <option value="opcion">Opción múltiple</option>
 </select>
 
-<textarea id="opciones" placeholder="Opciones separadas por coma (solo si es opción múltiple)"></textarea>
+<textarea id="opciones" placeholder="Opciones separadas por coma"></textarea>
 
 <button class="primary" onclick="agregar()">Agregar pregunta</button>
 <button class="success" onclick="guardarBorrador()">Guardar borrador</button>
@@ -83,7 +83,7 @@ button{
 </div>
 
 <div class="card">
-<h3>📋 Preguntas actuales</h3>
+<h3>📋 Preguntas</h3>
 <div id="lista"></div>
 </div>
 
@@ -92,12 +92,12 @@ button{
 <script>
 
 /* =====================
-   "BASE DE DATOS LOCAL"
+   BASE DE DATOS LOCAL
 ===================== */
 let preguntas = JSON.parse(localStorage.getItem("form_borrador")) || [];
 
 /* =====================
-   AGREGAR
+   AGREGAR PREGUNTA
 ===================== */
 function agregar(){
 
@@ -111,8 +111,8 @@ return;
 }
 
 preguntas.push({
-texto: p,
-tipo: t,
+texto:p,
+tipo:t,
 opciones: t === "opcion"
 ? o.split(",").map(x => x.trim()).filter(x => x)
 : []
@@ -141,7 +141,7 @@ render();
 }
 
 /* =====================
-   PUBLICAR FORMULARIO
+   PUBLICAR + LINK
 ===================== */
 function publicar(){
 
@@ -150,19 +150,23 @@ alert("No hay preguntas para publicar");
 return;
 }
 
-/* 🔥 ESTO ES TU "BASE DE DATOS ACTIVA" */
+/* guardar formulario activo */
 localStorage.setItem("formulario_activo", JSON.stringify(preguntas));
-
-/* estado del sistema */
 localStorage.setItem("estado_formulario", "publicado");
-
-/* timestamp opcional */
 localStorage.setItem("ultima_publicacion", Date.now());
 
-alert("✔ Formulario publicado correctamente");
+/* generar link */
+let url = window.location.origin + "/formulario.html";
 
-/* abre el formulario público */
-window.open("formulario.html", "_blank");
+/* copiar link */
+navigator.clipboard.writeText(url);
+
+/* abrir formulario */
+window.open(url, "_blank");
+
+/* aviso */
+alert("✔ Formulario publicado\n📋 Link copiado:\n" + url);
+
 }
 
 /* =====================
