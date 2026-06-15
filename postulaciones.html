@@ -8,6 +8,9 @@
 
 <style>
 
+/* =========================
+   BASE
+========================= */
 *{
     margin:0;
     padding:0;
@@ -16,75 +19,100 @@
 }
 
 body{
-    background:#0f172a;
+    background:#0b1220;
     color:white;
 }
 
+/* =========================
+   HEADER
+========================= */
 header{
     background:#111827;
-    padding:20px;
+    padding:18px;
+    font-size:18px;
+    font-weight:bold;
+    border-bottom:1px solid #1f2937;
 }
 
+/* =========================
+   CONTAINER
+========================= */
 .container{
     max-width:1000px;
     margin:auto;
-    padding:20px;
+    padding:25px;
 }
 
+/* =========================
+   CARD
+========================= */
 .card{
     background:#1e293b;
     padding:20px;
-    border-radius:12px;
-    margin-bottom:15px;
+    border-radius:14px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.3);
 }
 
-button{
-    border:none;
-    padding:10px 15px;
-    border-radius:8px;
-    cursor:pointer;
-    color:white;
-}
-
-.primary{
-    background:#2563eb;
-}
-
-.info{
-    background:#16a34a;
-}
-
+/* =========================
+   ITEM
+========================= */
 .item{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:10px;
-    background:#334155;
-    border-radius:8px;
-    margin-top:10px;
+    background:#0f172a;
+    padding:15px;
+    border-radius:12px;
+    margin-top:12px;
+    border:1px solid #1f2937;
 }
 
-small{
+.name{
+    font-weight:bold;
+    font-size:16px;
+}
+
+.small{
     color:#94a3b8;
+    font-size:13px;
 }
 
+/* =========================
+   BUTTONS
+========================= */
+button{
+    border:none;
+    padding:10px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    color:white;
+    margin-left:5px;
+    transition:0.2s;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+
+.view{ background:#16a34a; }
+.rate{ background:#2563eb; }
+
+/* =========================
+   EMPTY
+========================= */
 .empty{
     text-align:center;
     color:#94a3b8;
-    padding:20px;
+    padding:30px;
 }
 
-/* ===================== */
-/* MODAL */
-/* ===================== */
-
+/* =========================
+   MODAL PRO
+========================= */
 .modal{
     display:none;
     position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
+    inset:0;
     background:rgba(0,0,0,0.7);
     justify-content:center;
     align-items:center;
@@ -92,24 +120,32 @@ small{
 
 .modal-content{
     background:#1e293b;
-    padding:20px;
-    border-radius:12px;
+    padding:25px;
+    border-radius:14px;
     width:90%;
-    max-width:600px;
+    max-width:650px;
     max-height:80vh;
     overflow:auto;
+    border:1px solid #334155;
 }
 
 .close{
     float:right;
     cursor:pointer;
-    color:red;
-    font-size:20px;
+    font-size:18px;
+    color:#ef4444;
 }
 
 pre{
     white-space:pre-wrap;
-    color:white;
+    color:#e5e7eb;
+    font-size:14px;
+    line-height:1.5;
+}
+
+.title{
+    font-size:18px;
+    margin-bottom:10px;
 }
 
 </style>
@@ -118,7 +154,7 @@ pre{
 <body>
 
 <header>
-<h2>📂 Postulaciones Recibidas</h2>
+📂 Postulaciones Recibidas
 </header>
 
 <div class="container">
@@ -132,29 +168,39 @@ pre{
 
 <!-- MODAL -->
 <div id="modal" class="modal">
+
 <div class="modal-content">
 
 <span class="close" onclick="cerrarModal()">✖</span>
 
-<h3>📄 Postulación</h3>
-<br>
+<div class="title">📄 Detalles de Postulación</div>
 
 <pre id="modalTexto"></pre>
 
 </div>
+
 </div>
 
 <script>
 
+/* =========================
+   LOGIN CHECK
+========================= */
 if(!localStorage.getItem("sesion")){
     window.location.href = "login.html";
 }
 
+/* =========================
+   DATA
+========================= */
 let postulaciones =
 JSON.parse(localStorage.getItem("postulaciones")) || [];
 
 const lista = document.getElementById("lista");
 
+/* =========================
+   RENDER
+========================= */
 function render(){
 
     lista.innerHTML = "";
@@ -162,9 +208,8 @@ function render(){
     if(postulaciones.length === 0){
         lista.innerHTML = `
         <div class="empty">
-        No hay postulaciones aún.
-        </div>
-        `;
+            No hay postulaciones registradas.
+        </div>`;
         return;
     }
 
@@ -174,61 +219,55 @@ function render(){
         <div class="item">
 
             <div>
-                <strong>${p.nombre}</strong>
-                <br>
-                <small>${p.discord}</small>
-                <br>
-                <small>${p.fecha}</small>
+                <div class="name">${p.nombre}</div>
+                <div class="small">📧 ${p.discord}</div>
+                <div class="small">📅 ${p.fecha}</div>
             </div>
 
             <div>
 
-                <button class="info" onclick="ver(${index})">
-                Ver
+                <button class="view" onclick="ver(${index})">
+                    Ver
                 </button>
 
-                <button class="primary" onclick="calificar(${index})">
-                Calificar
+                <button class="rate" onclick="calificar(${index})">
+                    Calificar
                 </button>
 
             </div>
 
-        </div>
-        `;
-
+        </div>`;
     });
 
 }
 
-/*
-========================
-VER EN MODAL
-========================
-*/
+/* =========================
+   VER MODAL
+========================= */
 function ver(index){
 
     const p = postulaciones[index];
 
-    let texto =
-    `Nombre: ${p.nombre}\nDiscord: ${p.discord}\n\n`;
+    let texto = `Nombre: ${p.nombre}\nDiscord: ${p.discord}\n\n`;
 
     p.respuestas.forEach(r=>{
-        texto += `${r.pregunta}: ${r.respuesta}\n`;
+        texto += `• ${r.pregunta}: ${r.respuesta}\n`;
     });
 
     document.getElementById("modalTexto").innerText = texto;
     document.getElementById("modal").style.display = "flex";
 }
 
+/* =========================
+   CERRAR MODAL
+========================= */
 function cerrarModal(){
     document.getElementById("modal").style.display = "none";
 }
 
-/*
-========================
-CALIFICAR
-========================
-*/
+/* =========================
+   CALIFICAR
+========================= */
 function calificar(index){
 
     localStorage.setItem(
@@ -239,22 +278,16 @@ function calificar(index){
     window.location.href = "calificaciones.html";
 }
 
+/* =========================
+   INIT
+========================= */
 render();
 
-/*
-========================
-RESET MODAL (IMPORTANTE)
-========================
-*/
-
-// ✔ al cargar la página
-window.onload = function(){
-    document.getElementById("modal").style.display = "none";
-};
-
-// ✔ al volver atrás o recargar
-window.addEventListener("pageshow", function () {
-    document.getElementById("modal").style.display = "none";
+/* =========================
+   FIX MODAL BUG
+========================= */
+window.addEventListener("pageshow",()=>{
+    document.getElementById("modal").style.display="none";
 });
 
 </script>
