@@ -7,20 +7,15 @@
 <title>Postulación Staff | Buenos Aires RP</title>
 
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, sans-serif;
-}
 
 body{
-    background:#f3f4f6;
-    color:#111827;
+    margin:0;
+    font-family:Arial;
+    background:#eef2ff;
 }
 
 .container{
-    max-width:700px;
+    max-width:800px;
     margin:40px auto;
     padding:20px;
 }
@@ -29,7 +24,7 @@ body{
     background:white;
     padding:30px;
     border-radius:12px;
-    box-shadow:0 6px 20px rgba(0,0,0,0.08);
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
 }
 
 h1{
@@ -40,250 +35,245 @@ h1{
 .subtitle{
     text-align:center;
     color:#6b7280;
+    margin-bottom:25px;
+}
+
+.form-group{
     margin-bottom:20px;
 }
 
 label{
-    display:block;
-    margin-top:15px;
     font-weight:bold;
+    display:block;
+    margin-bottom:8px;
 }
 
-input, textarea{
+input[type="text"], textarea{
     width:100%;
     padding:12px;
-    margin-top:6px;
     border-radius:8px;
-    border:1px solid #d1d5db;
+    border:1px solid #ccc;
+    outline:none;
 }
 
-textarea{ resize:none; }
+textarea{
+    resize:none;
+}
 
-.option{
-    margin-top:10px;
+.question{
+    margin-bottom:25px;
+    padding:15px;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    background:#f9fafb;
+}
+
+.options label{
+    display:block;
+    margin-top:8px;
+    font-weight:normal;
+    cursor:pointer;
 }
 
 button{
     width:100%;
-    margin-top:20px;
-    padding:14px;
+    padding:15px;
     border:none;
     border-radius:8px;
     background:#2563eb;
     color:white;
     font-size:16px;
     cursor:pointer;
+    margin-top:20px;
 }
 
 button:hover{
     background:#1d4ed8;
 }
 
-.cerrado{
-    text-align:center;
-    font-size:18px;
-    color:#ef4444;
+.error{
+    color:red;
+    font-size:13px;
+    display:none;
 }
 
-.gracias{
+.success{
     text-align:center;
-    font-size:20px;
+    font-size:18px;
     color:#16a34a;
     font-weight:bold;
 }
+
 </style>
 </head>
 
 <body>
 
 <div class="container">
-<div id="contenido"></div>
-</div>
 
-<script>
-
-const contenido = document.getElementById("contenido");
-
-/* =========================
-   ESTADO DEL SISTEMA
-========================= */
-let estado = localStorage.getItem("estado_postulacion");
-if(!estado) estado = "cerrada";
-
-const preguntas = JSON.parse(localStorage.getItem("preguntas")) || [];
-
-/* =========================
-   USUARIO
-========================= */
-const discord = localStorage.getItem("discord_usuario");
-
-/* =========================
-   🔥 LÓGICA CORREGIDA
-========================= */
-let yaPostulo = false;
-
-/*
-✔ SOLO bloquea si:
-- está abierta
-- y ya envió postulación
-*/
-if(estado === "abierta" && discord){
-
-    const bloqueado = localStorage.getItem("postulante_" + discord);
-
-    if(bloqueado === "si"){
-        yaPostulo = true;
-    }
-}
-
-/* =========================
-   BLOQUEO PRINCIPAL
-========================= */
-
-if(yaPostulo && estado === "abierta"){
-
-contenido.innerHTML = `
-<div class="card">
-<div class="gracias">
-🚫 Ya has enviado tu postulación.<br><br>
-Solo se permite 1 formulario por persona.
-</div>
-</div>
-`;
-
-}else if(estado !== "abierta"){
-
-contenido.innerHTML = `
-<div class="card">
-<div class="cerrado">
-🔴 POSTULACIONES CERRADAS<br><br>
-Actualmente no estamos aceptando nuevas solicitudes.
-</div>
-</div>
-`;
-
-}else{
-
-let html = `
-<div class="card">
+<div class="card" id="formulario">
 
 <h1>🛡️ Postulación Staff</h1>
 <div class="subtitle">Buenos Aires RP</div>
 
-<label>Nombre</label>
-<input id="nombre">
+<div class="form-group">
+<label>Nombre completo *</label>
+<input type="text" id="nombre">
+<div class="error" id="err_nombre">Este campo es obligatorio</div>
+</div>
 
-<label>Discord</label>
-<input id="discord">
+<div class="form-group">
+<label>Discord *</label>
+<input type="text" id="discord">
+<div class="error" id="err_discord">Este campo es obligatorio</div>
+</div>
 
 <div id="preguntas"></div>
 
 <button onclick="enviar()">Enviar Postulación</button>
 
 </div>
-`;
 
-contenido.innerHTML = html;
+</div>
 
-const contenedor = document.getElementById("preguntas");
+<script>
 
-preguntas.forEach((p,index)=>{
+/* =========================
+   PREGUNTAS (tipo Google Forms)
+========================= */
+const preguntas = [
+{
+    texto:"¿Cuántas horas puedes estar activo?",
+    tipo:"texto"
+},
+{
+    texto:"¿Tienes experiencia en servidores RP?",
+    tipo:"opcion",
+    opciones:["Sí","No"]
+},
+{
+    texto:"¿Por qué quieres ser staff?",
+    tipo:"texto"
+}
+];
 
-let bloque = `<label>${index+1}. ${p.texto}</label>`;
+/* =========================
+   RENDER FORM
+========================= */
+const cont = document.getElementById("preguntas");
+
+preguntas.forEach((p,i)=>{
+
+let html = `<div class="question">
+<label>${i+1}. ${p.texto} *</label>`;
 
 if(p.tipo === "texto"){
-bloque += `<textarea id="respuesta_${index}"></textarea>`;
+html += `
+<textarea id="q_${i}"></textarea>
+<div class="error" id="err_q_${i}">Obligatorio</div>
+`;
 }else{
+html += `<div class="options">`;
+
 p.opciones.forEach(op=>{
-bloque += `
-<div class="option">
-<input type="radio" name="respuesta_${index}" value="${op}">
+html += `
+<label>
+<input type="radio" name="q_${i}" value="${op}">
 ${op}
-</div>`;
-});
-}
-
-contenedor.innerHTML += bloque;
-
+</label>
+`;
 });
 
+html += `
+</div>
+<div class="error" id="err_q_${i}">Selecciona una opción</div>
+`;
 }
+
+html += `</div>`;
+
+cont.innerHTML += html;
+
+});
 
 /* =========================
-   🔥 RESET AUTOMÁTICO AL CERRAR
+   VALIDACIÓN + ENVÍO
 ========================= */
-
-function limpiarPostulantes(){
-
-Object.keys(localStorage).forEach(key => {
-    if(key.startsWith("postulante_")){
-        localStorage.removeItem(key);
-    }
-});
-
-}
-
-/* =========================
-   ENVIAR FORMULARIO
-========================= */
-
 function enviar(){
 
+let ok = true;
+
 const nombre = document.getElementById("nombre").value.trim();
-const discordInput = document.getElementById("discord").value.trim();
+const discord = document.getElementById("discord").value.trim();
 
-if(!nombre || !discordInput){
-alert("Completa los datos.");
-return;
+/* validar nombre */
+if(!nombre){
+document.getElementById("err_nombre").style.display="block";
+ok=false;
+}else{
+document.getElementById("err_nombre").style.display="none";
 }
 
-localStorage.setItem("discord_usuario", discordInput);
-
-if(localStorage.getItem("postulante_" + discordInput) === "si"){
-alert("Ya enviaste una postulación.");
-return;
+/* validar discord */
+if(!discord){
+document.getElementById("err_discord").style.display="block";
+ok=false;
+}else{
+document.getElementById("err_discord").style.display="none";
 }
 
+/* validar preguntas */
 let respuestas = [];
 
-preguntas.forEach((p,index)=>{
+preguntas.forEach((p,i)=>{
 
-let respuesta = "";
+if(p.tipo==="texto"){
+const val = document.getElementById("q_"+i).value.trim();
 
-if(p.tipo === "texto"){
-respuesta = document.getElementById(`respuesta_${index}`).value;
+if(!val){
+document.getElementById("err_q_"+i).style.display="block";
+ok=false;
 }else{
-const sel = document.querySelector(`input[name="respuesta_${index}"]:checked`);
-if(sel) respuesta = sel.value;
+document.getElementById("err_q_"+i).style.display="none";
 }
 
-respuestas.push({
-pregunta:p.texto,
-respuesta
-});
+respuestas.push({pregunta:p.texto,respuesta:val});
+
+}else{
+
+const sel = document.querySelector(`input[name="q_${i}"]:checked`);
+
+if(!sel){
+document.getElementById("err_q_"+i).style.display="block";
+ok=false;
+}else{
+document.getElementById("err_q_"+i).style.display="none";
+respuestas.push({pregunta:p.texto,respuesta:sel.value});
+}
+
+}
 
 });
 
-let postulaciones = JSON.parse(localStorage.getItem("postulaciones")) || [];
+if(!ok) return;
 
-postulaciones.push({
+/* guardar */
+let data = JSON.parse(localStorage.getItem("postulaciones")) || [];
+
+data.push({
 id:Date.now(),
 nombre,
-discord: discordInput,
+discord,
 fecha:new Date().toLocaleDateString(),
-respuestas,
-estado:"Pendiente"
+respuestas
 });
 
-localStorage.setItem("postulaciones", JSON.stringify(postulaciones));
+localStorage.setItem("postulaciones",JSON.stringify(data));
 
-localStorage.setItem("postulante_" + discordInput, "si");
-
-document.getElementById("contenido").innerHTML = `
-<div class="card">
-<div class="gracias">
-🎉 ¡Postulación enviada con éxito!
-</div>
+/* mensaje final */
+document.getElementById("formulario").innerHTML = `
+<div class="success">
+🎉 ¡Postulación enviada correctamente!
 </div>
 `;
 
@@ -291,7 +281,5 @@ document.getElementById("contenido").innerHTML = `
 
 </script>
 
-</body>
-</html>
 </body>
 </html>
