@@ -7,57 +7,59 @@
 <title>Postulación Staff | Buenos Aires RP</title>
 
 <style>
-
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family:Arial, sans-serif;
 }
 
 body{
-    background:#0f172a;
-    color:white;
+    background:#f3f4f6;
+    color:#111827;
 }
 
 .container{
-    max-width:900px;
-    margin:auto;
-    padding:30px;
+    max-width:700px;
+    margin:40px auto;
+    padding:20px;
 }
 
 .card{
-    background:#1e293b;
-    padding:25px;
+    background:white;
+    padding:30px;
     border-radius:12px;
-    margin-bottom:20px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.08);
 }
 
 h1{
     text-align:center;
-    margin-bottom:10px;
+    margin-bottom:5px;
 }
 
 .subtitle{
     text-align:center;
-    color:#94a3b8;
-    margin-bottom:25px;
+    color:#6b7280;
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    margin-top:15px;
+    font-weight:bold;
 }
 
 input, textarea{
     width:100%;
     padding:12px;
-    border:none;
+    margin-top:6px;
     border-radius:8px;
-    background:#334155;
-    color:white;
-    margin-top:8px;
-    margin-bottom:15px;
+    border:1px solid #d1d5db;
+    outline:none;
 }
 
-label{
-    display:block;
-    margin-bottom:10px;
+textarea{
+    resize:none;
 }
 
 .option{
@@ -66,160 +68,117 @@ label{
 
 button{
     width:100%;
-    border:none;
+    margin-top:20px;
     padding:14px;
+    border:none;
     border-radius:8px;
     background:#2563eb;
     color:white;
+    font-size:16px;
     cursor:pointer;
-    font-size:15px;
+}
+
+button:hover{
+    background:#1d4ed8;
 }
 
 .cerrado{
     text-align:center;
-    font-size:20px;
+    font-size:18px;
+    color:#ef4444;
 }
 
+.gracias{
+    text-align:center;
+    font-size:20px;
+    color:#16a34a;
+    font-weight:bold;
+}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-
 <div id="contenido"></div>
-
 </div>
 
 <script>
 
-const estado =
-localStorage.getItem(
-"estado_postulacion"
-);
+const contenido = document.getElementById("contenido");
 
-const preguntas =
-JSON.parse(
-localStorage.getItem(
-"preguntas"
-)
-) || [];
+const yaPostulo = localStorage.getItem("ya_postulo");
 
-const contenido =
-document.getElementById(
-"contenido"
-);
+const estado = localStorage.getItem("estado_postulacion");
+const preguntas = JSON.parse(localStorage.getItem("preguntas")) || [];
 
-if(estado !== "abierta"){
+if(yaPostulo === "si"){
 
 contenido.innerHTML = `
 <div class="card">
-
-<div class="cerrado">
-
-🔴 POSTULACIONES CERRADAS
-
-<br><br>
-
-Actualmente no estamos aceptando
-nuevas solicitudes.
-
-<br><br>
-
-Buenos Aires RP
-
+<div class="gracias">
+🎉 ¡Gracias por postularte!<br><br>
+Ya hemos recibido tu solicitud.<br>
+Nuestro equipo la revisará pronto.
 </div>
+</div>
+`;
 
+}else if(estado !== "abierta"){
+
+contenido.innerHTML = `
+<div class="card">
+<div class="cerrado">
+🔴 POSTULACIONES CERRADAS<br><br>
+Actualmente no estamos aceptando nuevas solicitudes.
+</div>
 </div>
 `;
 
 }else{
 
 let html = `
-
 <div class="card">
 
 <h1>🛡️ Postulación Staff</h1>
+<div class="subtitle">Buenos Aires RP</div>
 
-<div class="subtitle">
-Buenos Aires RP
-</div>
+<label>Nombre</label>
+<input id="nombre" placeholder="Tu nombre">
 
-<label>
-Nombre
-</label>
-
-<input
-id="nombre"
-placeholder="Tu nombre">
-
-<label>
-Discord
-</label>
-
-<input
-id="discord"
-placeholder="usuario#0000">
+<label>Discord</label>
+<input id="discord" placeholder="usuario#0000">
 
 <div id="preguntas"></div>
 
-<button onclick="enviar()">
-Enviar Postulación
-</button>
+<button onclick="enviar()">Enviar Postulación</button>
 
 </div>
-
 `;
 
 contenido.innerHTML = html;
 
-const contenedor =
-document.getElementById(
-"preguntas"
-);
+const contenedor = document.getElementById("preguntas");
 
-preguntas.forEach(
-(p,index)=>{
+preguntas.forEach((p,index)=>{
 
 let bloque = `
-<br>
-
-<label>
-${index+1}. ${p.texto}
-</label>
+<label>${index+1}. ${p.texto}</label>
 `;
 
-if(
-p.tipo === "texto"
-){
-
+if(p.tipo === "texto"){
 bloque += `
-<textarea
-id="respuesta_${index}"
-placeholder="Escribe tu respuesta">
-</textarea>
+<textarea id="respuesta_${index}" placeholder="Escribe tu respuesta"></textarea>
 `;
-
 }else{
-
-p.opciones.forEach(
-(op,n)=>{
-
+p.opciones.forEach(op=>{
 bloque += `
 <div class="option">
-
-<input
-type="radio"
-name="respuesta_${index}"
-value="${op}">
-
+<input type="radio" name="respuesta_${index}" value="${op}">
 ${op}
-
 </div>
 `;
-
 });
-
 }
 
 contenedor.innerHTML += bloque;
@@ -230,114 +189,59 @@ contenedor.innerHTML += bloque;
 
 function enviar(){
 
-const nombre =
-document
-.getElementById(
-"nombre"
-)
-.value
-.trim();
-
-const discord =
-document
-.getElementById(
-"discord"
-)
-.value
-.trim();
+const nombre = document.getElementById("nombre").value.trim();
+const discord = document.getElementById("discord").value.trim();
 
 if(!nombre || !discord){
-
-alert(
-"Completa los datos."
-);
-
+alert("Completa los datos.");
 return;
-
 }
 
 let respuestas = [];
 
-preguntas.forEach(
-(p,index)=>{
+preguntas.forEach((p,index)=>{
 
 let respuesta = "";
 
-if(
-p.tipo === "texto"
-){
-
-respuesta =
-document
-.getElementById(
-`respuesta_${index}`
-)
-.value;
-
+if(p.tipo === "texto"){
+respuesta = document.getElementById(`respuesta_${index}`).value;
 }else{
-
-const seleccionada =
-document.querySelector(
-`input[name="respuesta_${index}"]:checked`
-);
-
-if(seleccionada){
-
-respuesta =
-seleccionada.value;
-
-}
-
+const seleccionada = document.querySelector(`input[name="respuesta_${index}"]:checked`);
+if(seleccionada) respuesta = seleccionada.value;
 }
 
 respuestas.push({
-
 pregunta:p.texto,
 respuesta
-
 });
 
 });
 
-const postulaciones =
-JSON.parse(
-localStorage.getItem(
-"postulaciones"
-)
-) || [];
+const postulaciones = JSON.parse(localStorage.getItem("postulaciones")) || [];
 
 postulaciones.push({
-
 id:Date.now(),
-
 nombre,
-
 discord,
-
-fecha:new Date()
-.toLocaleDateString(),
-
+fecha:new Date().toLocaleDateString(),
 respuestas,
-
 estado:"Pendiente"
-
 });
 
-localStorage.setItem(
+localStorage.setItem("postulaciones", JSON.stringify(postulaciones));
 
-"postulaciones",
+// 🔥 BLOQUEAR REENVÍO
+localStorage.setItem("ya_postulo","si");
 
-JSON.stringify(
-postulaciones
-)
-
-);
-
-alert(
-"Postulación enviada correctamente."
-);
-
-location.reload();
+document.getElementById("contenido").innerHTML = `
+<div class="card">
+<div class="gracias">
+🎉 ¡Postulación enviada con éxito!<br><br>
+Gracias por unirte al proceso de selección.<br>
+Te contactaremos pronto por Discord.
+</div>
+</div>
+`;
 
 }
 
