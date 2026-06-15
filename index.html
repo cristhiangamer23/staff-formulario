@@ -74,9 +74,7 @@ p{
 
     <h1>🛡️ Buenos Aires RP</h1>
 
-    <p>
-        Sistema de Recursos Humanos
-    </p>
+    <p>Sistema de Recursos Humanos</p>
 
     <div class="loader"></div>
 
@@ -95,31 +93,19 @@ CONFIGURACIÓN INICIAL
 */
 
 if(!localStorage.getItem("estado_postulacion")){
-    localStorage.setItem(
-        "estado_postulacion",
-        "cerrada"
-    );
+    localStorage.setItem("estado_postulacion","cerrada");
 }
 
 if(!localStorage.getItem("preguntas")){
-    localStorage.setItem(
-        "preguntas",
-        JSON.stringify([])
-    );
+    localStorage.setItem("preguntas", JSON.stringify([]));
 }
 
 if(!localStorage.getItem("postulaciones")){
-    localStorage.setItem(
-        "postulaciones",
-        JSON.stringify([])
-    );
+    localStorage.setItem("postulaciones", JSON.stringify([]));
 }
 
 if(!localStorage.getItem("calificaciones")){
-    localStorage.setItem(
-        "calificaciones",
-        JSON.stringify([])
-    );
+    localStorage.setItem("calificaciones", JSON.stringify([]));
 }
 
 /*
@@ -130,19 +116,12 @@ VERIFICAR SESIÓN
 
 setTimeout(()=>{
 
-    const sesion =
-    localStorage.getItem("sesion");
+    const sesion = localStorage.getItem("sesion");
 
     if(sesion){
-
-        window.location.href =
-        "pages/dashboard.html";
-
+        window.location.href = "dashboard.html";
     }else{
-
-        window.location.href =
-        "pages/login.html";
-
+        window.location.href = "login.html";
     }
 
 },1500);
