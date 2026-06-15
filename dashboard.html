@@ -117,9 +117,7 @@ button{
 
         <br>
 
-        <div id="estado" class="status">
-            Cargando...
-        </div>
+        <div id="estado" class="status">Cargando...</div>
 
         <br>
 
@@ -187,7 +185,7 @@ if(user){
 }
 
 /* =========================
-   ESTADO POSTULACIONES
+   ESTADO
 ========================= */
 function actualizarEstado(){
 
@@ -202,37 +200,34 @@ function actualizarEstado(){
 }
 
 /* =========================
-   🟢 ABRIR POSTULACIÓN
+   🟢 ABRIR POSTULACIÓN (CORREGIDO)
 ========================= */
 function abrirPostulacion(){
 
     localStorage.setItem("estado_postulacion","abierta");
 
-    localStorage.removeItem("ya_postulo");
+    // 🔥 RESET COMPLETO DE USUARIOS QUE YA POSTULARON
+    Object.keys(localStorage).forEach(key => {
+        if(key.startsWith("postulante_")){
+            localStorage.removeItem(key);
+        }
+    });
 
     actualizarEstado();
 
-    alert("🟢 Postulación abierta. Ya pueden volver a postularse.");
+    alert("🟢 Postulación abierta. Sistema reiniciado correctamente.");
 }
 
 /* =========================
-   🔴 CERRAR POSTULACIÓN (CORREGIDO)
+   🔴 CERRAR POSTULACIÓN (CORRECTO)
 ========================= */
 function cerrarPostulacion(){
 
-    localStorage.setItem("estado_postulacion", "cerrada");
-
-    // 🧹 eliminar datos de usuarios
-    localStorage.removeItem("postulaciones");
-    localStorage.removeItem("calificaciones");
-
-    // 🔓 reset de control
-    localStorage.removeItem("ya_postulo");
+    localStorage.setItem("estado_postulacion","cerrada");
 
     actualizarEstado();
-    cargarEstadisticas();
 
-    alert("🔴 Postulación cerrada y sistema reiniciado completamente.");
+    alert("🔴 Postulación cerrada.");
 }
 
 /* =========================
