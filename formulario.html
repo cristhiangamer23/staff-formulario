@@ -4,29 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Formulario Staff | Buenos Aires RP</title>
+<title>Admin RR.HH | Form Builder</title>
 
 <style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial;
-}
-
 body{
+    margin:0;
+    font-family:Arial;
     background:#0f172a;
     color:white;
 }
 
-header{
-    background:#111827;
-    padding:20px;
-}
-
 .container{
-    max-width:1000px;
+    max-width:900px;
     margin:auto;
     padding:20px;
 }
@@ -35,14 +24,14 @@ header{
     background:#1e293b;
     padding:20px;
     border-radius:12px;
-    margin-bottom:20px;
+    margin-bottom:15px;
 }
 
 input, textarea, select{
     width:100%;
     padding:10px;
-    margin-top:10px;
-    margin-bottom:10px;
+    margin-top:8px;
+    margin-bottom:8px;
     border:none;
     border-radius:8px;
     background:#334155;
@@ -50,8 +39,8 @@ input, textarea, select{
 }
 
 button{
-    border:none;
     padding:10px 15px;
+    border:none;
     border-radius:8px;
     cursor:pointer;
     color:white;
@@ -60,31 +49,24 @@ button{
 
 .primary{background:#2563eb;}
 .success{background:#16a34a;}
-.danger{background:#dc2626;}
 .publish{background:#f59e0b;}
+.danger{background:#dc2626;}
 
-.question{
+.item{
     background:#334155;
     padding:10px;
     margin-top:10px;
     border-radius:8px;
 }
-
 </style>
 </head>
 
 <body>
 
-<header>
-<h2>📝 Constructor de Formulario RR.HH.</h2>
-</header>
-
 <div class="container">
 
-<!-- CREAR -->
 <div class="card">
-
-<h3>Crear Pregunta</h3>
+<h2>🧩 Constructor de Formulario</h2>
 
 <input id="pregunta" placeholder="Escribe la pregunta">
 
@@ -93,17 +75,15 @@ button{
 <option value="opcion">Opción múltiple</option>
 </select>
 
-<textarea id="opciones" placeholder="Opciones separadas por coma"></textarea>
+<textarea id="opciones" placeholder="Opciones separadas por coma (solo si es opción múltiple)"></textarea>
 
-<button class="primary" onclick="agregar()">Agregar</button>
-<button class="success" onclick="guardar()">Guardar</button>
-<button class="publish" onclick="publicar()">📢 Publicar</button>
-
+<button class="primary" onclick="agregar()">Agregar pregunta</button>
+<button class="success" onclick="guardarBorrador()">Guardar borrador</button>
+<button class="publish" onclick="publicar()">📢 Publicar formulario</button>
 </div>
 
-<!-- LISTA -->
 <div class="card">
-<h3>Preguntas</h3>
+<h3>📋 Preguntas actuales</h3>
 <div id="lista"></div>
 </div>
 
@@ -112,9 +92,9 @@ button{
 <script>
 
 /* =====================
-   PREGUNTAS
+   "BASE DE DATOS LOCAL"
 ===================== */
-let preguntas = JSON.parse(localStorage.getItem("preguntas")) || [];
+let preguntas = JSON.parse(localStorage.getItem("form_borrador")) || [];
 
 /* =====================
    AGREGAR
@@ -125,27 +105,31 @@ let p = document.getElementById("pregunta").value;
 let t = document.getElementById("tipo").value;
 let o = document.getElementById("opciones").value;
 
-if(!p) return alert("Escribe una pregunta");
+if(!p){
+alert("Escribe una pregunta");
+return;
+}
 
-let nueva = {
-texto:p,
-tipo:t,
+preguntas.push({
+texto: p,
+tipo: t,
 opciones: t === "opcion"
-? o.split(",").map(x=>x.trim())
+? o.split(",").map(x => x.trim()).filter(x => x)
 : []
-};
+});
 
-preguntas.push(nueva);
+document.getElementById("pregunta").value = "";
+document.getElementById("opciones").value = "";
+
 render();
-
 }
 
 /* =====================
-   GUARDAR
+   GUARDAR BORRADOR
 ===================== */
-function guardar(){
-localStorage.setItem("preguntas", JSON.stringify(preguntas));
-alert("Formulario guardado");
+function guardarBorrador(){
+localStorage.setItem("form_borrador", JSON.stringify(preguntas));
+alert("Borrador guardado ✔");
 }
 
 /* =====================
@@ -154,6 +138,31 @@ alert("Formulario guardado");
 function eliminar(i){
 preguntas.splice(i,1);
 render();
+}
+
+/* =====================
+   PUBLICAR FORMULARIO
+===================== */
+function publicar(){
+
+if(preguntas.length === 0){
+alert("No hay preguntas para publicar");
+return;
+}
+
+/* 🔥 ESTO ES TU "BASE DE DATOS ACTIVA" */
+localStorage.setItem("formulario_activo", JSON.stringify(preguntas));
+
+/* estado del sistema */
+localStorage.setItem("estado_formulario", "publicado");
+
+/* timestamp opcional */
+localStorage.setItem("ultima_publicacion", Date.now());
+
+alert("✔ Formulario publicado correctamente");
+
+/* abre el formulario público */
+window.open("formulario.html", "_blank");
 }
 
 /* =====================
@@ -166,11 +175,9 @@ let html = "";
 preguntas.forEach((p,i)=>{
 
 html += `
-<div class="question">
-<b>${p.texto}</b>
-<br>
-<small>${p.tipo}</small>
-<br>
+<div class="item">
+<b>${p.texto}</b><br>
+<small>${p.tipo}</small><br>
 <button class="danger" onclick="eliminar(${i})">Eliminar</button>
 </div>
 `;
@@ -178,36 +185,11 @@ html += `
 });
 
 document.getElementById("lista").innerHTML = html;
-
-}
-
-/* =====================
-   🔥 PUBLICAR CORREGIDO
-===================== */
-function publicar(){
-
-    const estado = localStorage.getItem("estado_postulacion");
-
-    if(estado !== "abierta"){
-        alert("❌ No puedes publicar porque las postulaciones están cerradas.");
-        return;
-    }
-
-    let url = window.location.origin + "/buenosaires/postulacion/";
-
-    window.open(url, "_blank");
-
-    navigator.clipboard.writeText(url);
-
-    alert("✔ Formulario abierto y link copiado para Discord.");
 }
 
 render();
 
 </script>
-
-</body>
-</html>
 
 </body>
 </html>
