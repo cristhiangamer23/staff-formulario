@@ -4,62 +4,71 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Postulación Staff | Buenos Aires RP</title>
+<title>Postulación Staff</title>
 
 <style>
 
+/* ===== BASE ===== */
 body{
     margin:0;
     font-family:Arial;
-    background:#eef2ff;
+    background:#0b1220;
+    color:white;
 }
 
-.container{
-    max-width:800px;
-    margin:40px auto;
+/* ===== CENTER ===== */
+.wrap{
+    max-width:850px;
+    margin:50px auto;
     padding:20px;
 }
 
+/* ===== CARD ===== */
 .card{
-    background:white;
+    background:#111827;
     padding:30px;
-    border-radius:12px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
 }
 
+/* TITLE */
 h1{
     text-align:center;
+    margin-bottom:5px;
 }
 
-.subtitle{
+.sub{
     text-align:center;
-    color:#6b7280;
-    margin-bottom:20px;
+    color:#94a3b8;
+    margin-bottom:25px;
 }
 
-#form-area{
+/* FORM AREA */
+#form{
     margin-top:20px;
 }
 
-/* inputs base */
+/* INPUTS */
 input, textarea{
     width:100%;
     padding:12px;
     margin-top:10px;
-    border-radius:8px;
-    border:1px solid #ccc;
+    border-radius:10px;
+    border:1px solid #334155;
+    background:#0f172a;
+    color:white;
 }
 
-/* botón */
+/* BUTTON */
 button{
     width:100%;
-    padding:15px;
+    padding:14px;
     border:none;
-    border-radius:8px;
+    border-radius:10px;
+    margin-top:20px;
     background:#2563eb;
     color:white;
-    font-size:16px;
-    margin-top:20px;
+    font-size:15px;
     cursor:pointer;
 }
 
@@ -67,18 +76,20 @@ button:hover{
     background:#1d4ed8;
 }
 
-/* bloqueado */
-.blocked{
+/* STATUS */
+.status{
+    text-align:center;
+    margin-bottom:15px;
+    font-weight:bold;
+}
+
+.open{color:#22c55e;}
+.closed{color:#ef4444;}
+
+/* BLOCK */
+.block{
     text-align:center;
     padding:40px;
-}
-
-.blocked h2{
-    color:#dc2626;
-}
-
-.blocked p{
-    color:#6b7280;
 }
 
 </style>
@@ -86,68 +97,53 @@ button:hover{
 
 <body>
 
-<div class="container">
-<div class="card" id="app">
-
-<!-- CONTENIDO DINÁMICO -->
-
-</div>
+<div class="wrap">
+<div class="card" id="app"></div>
 </div>
 
 <script>
 
 /* =========================
-   ESTADO DEL SISTEMA
+   ESTADO
 ========================= */
 let estado = localStorage.getItem("estado_postulacion") || "cerrada";
 
 /* =========================
-   SI ESTÁ CERRADO
+   BLOQUEADO
 ========================= */
 if(estado !== "abierta"){
 
 document.getElementById("app").innerHTML = `
-<div class="blocked">
-
-<h2>🚫 Postulaciones cerradas</h2>
-
-<p>
-En este momento no estamos aceptando nuevas postulaciones.
-</p>
-
-<p>
-Intenta más tarde cuando el sistema esté abierto.
-</p>
-
+<div class="block">
+    <h2 class="closed">🚫 Cerrado</h2>
+    <p>Las postulaciones están actualmente cerradas.</p>
 </div>
 `;
 
 }else{
 
 /* =========================
-   FORMULARIO VACÍO (DINÁMICO)
+   FORM BASE (VACÍO)
 ========================= */
 document.getElementById("app").innerHTML = `
 
-<h1>🛡️ Postulación Staff</h1>
-<div class="subtitle">Buenos Aires RP</div>
+<h1>🛡 Postulación Staff</h1>
+<div class="sub">Sistema Buenos Aires RP</div>
 
-<div id="form-area">
-<!-- aquí tú insertas preguntas desde otro panel -->
-</div>
+<div class="status open">🟢 ABIERTA</div>
 
-<button onclick="enviar()">Enviar Postulación</button>
+<div id="form"></div>
+
+<button onclick="send()">Enviar Postulación</button>
 
 `;
 
 /* =========================
-   ENVÍO GENÉRICO
+   ENVÍO
 ========================= */
-window.enviar = function(){
-
-alert("✔ Postulación enviada (conecta aquí tu formulario dinámico)");
-
-}
+window.send = function(){
+    alert("Postulación enviada (formulario dinámico listo para conectar)");
+};
 
 }
 
