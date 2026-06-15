@@ -1,117 +1,10 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Postulación Staff</title>
-
-<style>
-
-/* ===== BASE ===== */
-body{
-    margin:0;
-    font-family:Arial;
-    background:#0b1220;
-    color:white;
-}
-
-/* ===== CENTER ===== */
-.wrap{
-    max-width:850px;
-    margin:50px auto;
-    padding:20px;
-}
-
-/* ===== CARD ===== */
-.card{
-    background:#111827;
-    padding:30px;
-    border-radius:14px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.4);
-}
-
-/* TITLE */
-h1{
-    text-align:center;
-    margin-bottom:5px;
-}
-
-.sub{
-    text-align:center;
-    color:#94a3b8;
-    margin-bottom:25px;
-}
-
-/* FORM AREA */
-#form{
-    margin-top:20px;
-}
-
-/* INPUTS */
-input, textarea{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:10px;
-    border:1px solid #334155;
-    background:#0f172a;
-    color:white;
-}
-
-/* BUTTON */
-button{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:10px;
-    margin-top:20px;
-    background:#2563eb;
-    color:white;
-    font-size:15px;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#1d4ed8;
-}
-
-/* STATUS */
-.status{
-    text-align:center;
-    margin-bottom:15px;
-    font-weight:bold;
-}
-
-.open{color:#22c55e;}
-.closed{color:#ef4444;}
-
-/* BLOCK */
-.block{
-    text-align:center;
-    padding:40px;
-}
-
-</style>
-</head>
-
-<body>
-
-<div class="wrap">
-<div class="card" id="app"></div>
-</div>
-
-<script>
+let estado = localStorage.getItem("estado_formulario") || "cerrado";
+let preguntas = JSON.parse(localStorage.getItem("formulario_activo")) || [];
 
 /* =========================
-   ESTADO
+   SI ESTÁ CERRADO
 ========================= */
-let estado = localStorage.getItem("estado_postulacion") || "cerrada";
-
-/* =========================
-   BLOQUEADO
-========================= */
-if(estado !== "abierta"){
+if(estado !== "publicado" || preguntas.length === 0){
 
 document.getElementById("app").innerHTML = `
 <div class="block">
@@ -123,10 +16,10 @@ document.getElementById("app").innerHTML = `
 }else{
 
 /* =========================
-   FORM BASE (VACÍO)
+   RENDER FORMULARIO DINÁMICO
 ========================= */
-document.getElementById("app").innerHTML = `
 
+let html = `
 <h1>🛡 Postulación Staff</h1>
 <div class="sub">Sistema Buenos Aires RP</div>
 
@@ -135,19 +28,60 @@ document.getElementById("app").innerHTML = `
 <div id="form"></div>
 
 <button onclick="send()">Enviar Postulación</button>
-
 `;
 
+document.getElementById("app").innerHTML = html;
+
+let formHTML = "";
+
+preguntas.forEach((p, i) => {
+
+if(p.tipo === "texto"){
+formHTML += `
+<label>${p.texto}</label>
+<input type="text" id="p${i}">
+`;
+}
+
+if(p.tipo === "opcion"){
+formHTML += `
+<label>${p.texto}</label>
+<select id="p${i}">
+${p.opciones.map(o => `<option>${o}</option>`).join("")}
+</select>
+`;
+}
+
+});
+
+document.getElementById("form").innerHTML = formHTML;
+
 /* =========================
-   ENVÍO
+   ENVIAR
 ========================= */
 window.send = function(){
-    alert("Postulación enviada (formulario dinámico listo para conectar)");
+
+let respuestas = [];
+
+preguntas.forEach((p,i)=>{
+
+let val = document.getElementById("p"+i).value;
+
+respuestas.push({
+pregunta: p.texto,
+respuesta: val
+});
+
+});
+
+/* guardar respuestas */
+let datos = JSON.parse(localStorage.getItem("respuestas")) || [];
+datos.push(respuestas);
+
+localStorage.setItem("respuestas", JSON.stringify(datos));
+
+alert("✔ Postulación enviada correctamente");
+
 };
 
 }
-
-</script>
-
-</body>
-</html>
