@@ -12,7 +12,7 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family:Arial;
 }
 
 body{
@@ -26,7 +26,7 @@ header{
 }
 
 .container{
-    max-width:1200px;
+    max-width:1000px;
     margin:auto;
     padding:20px;
 }
@@ -40,9 +40,9 @@ header{
 
 input, textarea, select{
     width:100%;
-    padding:12px;
-    margin-top:8px;
-    margin-bottom:15px;
+    padding:10px;
+    margin-top:10px;
+    margin-bottom:10px;
     border:none;
     border-radius:8px;
     background:#334155;
@@ -51,34 +51,53 @@ input, textarea, select{
 
 button{
     border:none;
-    padding:12px 20px;
+    padding:10px 15px;
     border-radius:8px;
     cursor:pointer;
     color:white;
+    margin-top:5px;
 }
 
-.primary{
-    background:#2563eb;
-}
-
-.success{
-    background:#16a34a;
-}
-
-.danger{
-    background:#dc2626;
-}
+.primary{background:#2563eb;}
+.success{background:#16a34a;}
+.danger{background:#dc2626;}
+.publish{background:#f59e0b;}
 
 .question{
     background:#334155;
-    padding:15px;
-    border-radius:10px;
+    padding:10px;
     margin-top:10px;
+    border-radius:8px;
 }
 
-.option{
-    margin-top:5px;
-    color:#cbd5e1;
+/* MODAL */
+.modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-content{
+    width:90%;
+    max-width:700px;
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+    max-height:80vh;
+    overflow:auto;
+}
+
+.close{
+    float:right;
+    cursor:pointer;
+    color:red;
+    font-size:20px;
 }
 
 </style>
@@ -87,78 +106,47 @@ button{
 <body>
 
 <header>
-<h2>📝 Constructor de Formulario Staff</h2>
+<h2>📝 Constructor de Formulario</h2>
 </header>
 
 <div class="container">
 
 <div class="card">
 
-<h3>Nueva Pregunta</h3>
+<h3>Crear Pregunta</h3>
 
-<br>
-
-<label>Pregunta</label>
-
-<input
-type="text"
-id="pregunta"
-placeholder="Escribe la pregunta">
-
-<label>Tipo</label>
+<input id="pregunta" placeholder="Escribe la pregunta">
 
 <select id="tipo">
-
-<option value="texto">
-Texto
-</option>
-
-<option value="opcion">
-Opción Múltiple
-</option>
-
+<option value="texto">Texto</option>
+<option value="opcion">Opción múltiple</option>
 </select>
 
-<label>
-Opciones (separadas por coma)
-</label>
+<textarea id="opciones" placeholder="Opciones separadas por coma"></textarea>
 
-<textarea
-id="opciones"
-placeholder="Sí,No,Tal vez">
-</textarea>
-
-<button
-class="primary"
-onclick="agregarPregunta()">
-
-➕ Agregar Pregunta
-
-</button>
-
-<button
-class="success"
-onclick="guardarFormulario()">
-
-💾 Guardar Formulario
-
-</button>
-
-<button
-class="danger"
-onclick="borrarFormulario()">
-
-🗑️ Borrar Todo
-
-</button>
+<button class="primary" onclick="agregar()">Agregar</button>
+<button class="success" onclick="guardar()">Guardar</button>
+<button class="publish" onclick="publicar()">📢 Publicar</button>
 
 </div>
 
 <div class="card">
+<h3>Preguntas</h3>
+<div id="lista"></div>
+</div>
 
-<h3>Vista Previa</h3>
+</div>
 
-<div id="preview"></div>
+<!-- MODAL -->
+<div class="modal" id="modal">
+
+<div class="modal-content">
+
+<span class="close" onclick="cerrar()">✖</span>
+
+<h2>📋 Vista del Formulario Público</h2>
+
+<div id="vista"></div>
 
 </div>
 
@@ -166,214 +154,93 @@ onclick="borrarFormulario()">
 
 <script>
 
-if(!localStorage.getItem("sesion")){
+let preguntas = JSON.parse(localStorage.getItem("preguntas")) || [];
 
-    window.location.href =
-    "login.html";
+/* AGREGAR PREGUNTA */
+function agregar(){
+
+let p = document.getElementById("pregunta").value;
+let t = document.getElementById("tipo").value;
+let o = document.getElementById("opciones").value;
+
+if(!p) return alert("Escribe una pregunta");
+
+let nueva = {
+texto:p,
+tipo:t,
+opciones: t === "opcion" ? o.split(",") : []
+};
+
+preguntas.push(nueva);
+render();
 
 }
 
-let preguntas =
-JSON.parse(
-localStorage.getItem("preguntas")
-) || [];
+/* GUARDAR */
+function guardar(){
+localStorage.setItem("preguntas", JSON.stringify(preguntas));
+alert("Guardado");
+}
 
+/* ELIMINAR */
+function eliminar(i){
+preguntas.splice(i,1);
+render();
+}
+
+/* RENDER */
 function render(){
 
-    const preview =
-    document.getElementById(
-    "preview"
-    );
+let html = "";
 
-    preview.innerHTML = "";
+preguntas.forEach((p,i)=>{
 
-    if(
-    preguntas.length === 0
-    ){
+html += `
+<div class="question">
+<b>${p.texto}</b>
+<br>
+<small>${p.tipo}</small>
+<br>
+<button class="danger" onclick="eliminar(${i})">Eliminar</button>
+</div>
+`;
 
-        preview.innerHTML =
-        "<p>No hay preguntas.</p>";
+});
 
-        return;
-    }
-
-    preguntas.forEach(
-    (p,index)=>{
-
-        let html = `
-        <div class="question">
-
-        <strong>
-        ${index+1}. ${p.texto}
-        </strong>
-        <br><br>
-        `;
-
-        if(
-        p.tipo === "texto"
-        ){
-
-            html += `
-            <input
-            disabled
-            placeholder="Respuesta">
-            `;
-
-        }else{
-
-            p.opciones.forEach(
-            op=>{
-
-                html += `
-                <div class="option">
-                ○ ${op}
-                </div>
-                `;
-
-            });
-
-        }
-
-        html += `
-        <br>
-
-        <button
-        class="danger"
-        onclick="eliminarPregunta(${index})">
-
-        Eliminar
-
-        </button>
-
-        </div>
-        `;
-
-        preview.innerHTML += html;
-
-    });
+document.getElementById("lista").innerHTML = html;
 
 }
 
-function agregarPregunta(){
+/* PUBLICAR (NUEVO) */
+function publicar(){
 
-    const pregunta =
-    document
-    .getElementById(
-    "pregunta"
-    )
-    .value
-    .trim();
+let vista = "";
 
-    const tipo =
-    document
-    .getElementById(
-    "tipo"
-    )
-    .value;
+preguntas.forEach((p,i)=>{
 
-    const opciones =
-    document
-    .getElementById(
-    "opciones"
-    )
-    .value
-    .trim();
+vista += `<div style="margin-bottom:15px;">`;
+vista += `<b>${p.texto}</b><br>`;
 
-    if(!pregunta){
+if(p.tipo === "texto"){
+vista += `<input disabled placeholder="Respuesta">`;
+}else{
+p.opciones.forEach(op=>{
+vista += `<div>○ ${op}</div>`;
+});
+}
 
-        alert(
-        "Debes escribir una pregunta."
-        );
+vista += `</div>`;
+});
 
-        return;
-    }
+document.getElementById("vista").innerHTML = vista;
 
-    let nueva = {
-
-        texto:pregunta,
-        tipo:tipo,
-        opciones:[]
-    };
-
-    if(
-    tipo === "opcion"
-    ){
-
-        nueva.opciones =
-        opciones
-        .split(",")
-        .map(
-        x=>x.trim()
-        )
-        .filter(
-        x=>x
-        );
-
-    }
-
-    preguntas.push(
-    nueva
-    );
-
-    document
-    .getElementById(
-    "pregunta"
-    )
-    .value = "";
-
-    document
-    .getElementById(
-    "opciones"
-    )
-    .value = "";
-
-    render();
+document.getElementById("modal").style.display = "flex";
 
 }
 
-function guardarFormulario(){
-
-    localStorage.setItem(
-    "preguntas",
-    JSON.stringify(
-    preguntas
-    )
-    );
-
-    alert(
-    "Formulario guardado correctamente."
-    );
-
-}
-
-function borrarFormulario(){
-
-    if(
-    !confirm(
-    "¿Eliminar todas las preguntas?"
-    )
-    ) return;
-
-    preguntas = [];
-
-    localStorage.setItem(
-    "preguntas",
-    JSON.stringify([])
-    );
-
-    render();
-
-}
-
-function eliminarPregunta(index){
-
-    preguntas.splice(
-    index,
-    1
-    );
-
-    render();
-
+/* CERRAR MODAL */
+function cerrar(){
+document.getElementById("modal").style.display = "none";
 }
 
 render();
