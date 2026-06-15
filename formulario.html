@@ -85,12 +85,10 @@ button{
 
 .modal-content{
     width:90%;
-    max-width:700px;
+    max-width:600px;
     background:#1e293b;
     padding:20px;
     border-radius:12px;
-    max-height:80vh;
-    overflow:auto;
 }
 
 .close{
@@ -106,11 +104,12 @@ button{
 <body>
 
 <header>
-<h2>📝 Constructor de Formulario</h2>
+<h2>📝 Constructor de Formulario RR.HH.</h2>
 </header>
 
 <div class="container">
 
+<!-- CREAR PREGUNTA -->
 <div class="card">
 
 <h3>Crear Pregunta</h3>
@@ -130,6 +129,7 @@ button{
 
 </div>
 
+<!-- LISTA -->
 <div class="card">
 <h3>Preguntas</h3>
 <div id="lista"></div>
@@ -137,16 +137,23 @@ button{
 
 </div>
 
-<!-- MODAL -->
+<!-- MODAL PUBLICAR -->
 <div class="modal" id="modal">
 
 <div class="modal-content">
 
 <span class="close" onclick="cerrar()">✖</span>
 
-<h2>📋 Vista del Formulario Público</h2>
+<h2>📢 Formulario Publicado</h2>
 
-<div id="vista"></div>
+<p>Link público:</p>
+
+<input id="link" readonly>
+
+<br><br>
+
+<button class="success" onclick="copiar()">📋 Copiar Link</button>
+<button class="primary" onclick="abrir()">🔗 Abrir</button>
 
 </div>
 
@@ -154,9 +161,14 @@ button{
 
 <script>
 
+/* =========================
+   CARGAR PREGUNTAS
+========================= */
 let preguntas = JSON.parse(localStorage.getItem("preguntas")) || [];
 
-/* AGREGAR PREGUNTA */
+/* =========================
+   AGREGAR PREGUNTA
+========================= */
 function agregar(){
 
 let p = document.getElementById("pregunta").value;
@@ -168,7 +180,9 @@ if(!p) return alert("Escribe una pregunta");
 let nueva = {
 texto:p,
 tipo:t,
-opciones: t === "opcion" ? o.split(",") : []
+opciones: t === "opcion"
+? o.split(",").map(x=>x.trim())
+: []
 };
 
 preguntas.push(nueva);
@@ -176,19 +190,25 @@ render();
 
 }
 
-/* GUARDAR */
+/* =========================
+   GUARDAR
+========================= */
 function guardar(){
 localStorage.setItem("preguntas", JSON.stringify(preguntas));
-alert("Guardado");
+alert("Formulario guardado");
 }
 
-/* ELIMINAR */
+/* =========================
+   ELIMINAR
+========================= */
 function eliminar(i){
 preguntas.splice(i,1);
 render();
 }
 
-/* RENDER */
+/* =========================
+   RENDER
+========================= */
 function render(){
 
 let html = "";
@@ -211,34 +231,50 @@ document.getElementById("lista").innerHTML = html;
 
 }
 
-/* PUBLICAR (NUEVO) */
+/* =========================
+   🔥 PUBLICAR (CORREGIDO)
+========================= */
 function publicar(){
 
-let vista = "";
+const estado = localStorage.getItem("estado_postulacion");
 
-preguntas.forEach((p,i)=>{
-
-vista += `<div style="margin-bottom:15px;">`;
-vista += `<b>${p.texto}</b><br>`;
-
-if(p.tipo === "texto"){
-vista += `<input disabled placeholder="Respuesta">`;
-}else{
-p.opciones.forEach(op=>{
-vista += `<div>○ ${op}</div>`;
-});
+if(estado !== "abierta"){
+alert("❌ No puedes publicar porque las postulaciones están cerradas.");
+return;
 }
 
-vista += `</div>`;
-});
+let url = window.location.origin + "/buenosaires/postulacion/";
 
-document.getElementById("vista").innerHTML = vista;
+document.getElementById("link").value = url;
 
 document.getElementById("modal").style.display = "flex";
 
 }
 
-/* CERRAR MODAL */
+/* =========================
+   COPIAR LINK
+========================= */
+function copiar(){
+
+let input = document.getElementById("link");
+
+input.select();
+document.execCommand("copy");
+
+alert("Link copiado");
+
+}
+
+/* =========================
+   ABRIR LINK
+========================= */
+function abrir(){
+window.open(document.getElementById("link").value, "_blank");
+}
+
+/* =========================
+   CERRAR MODAL
+========================= */
 function cerrar(){
 document.getElementById("modal").style.display = "none";
 }
