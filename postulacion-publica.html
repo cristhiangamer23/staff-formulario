@@ -107,7 +107,13 @@ button:hover{
 
 const contenido = document.getElementById("contenido");
 
-const estado = localStorage.getItem("estado_postulacion");
+/* 🔥 ESTADO CORREGIDO */
+let estado = localStorage.getItem("estado_postulacion");
+
+if(!estado){
+    estado = "cerrada";
+}
+
 const preguntas = JSON.parse(localStorage.getItem("preguntas")) || [];
 
 // 🔥 identidad usuario
@@ -119,15 +125,14 @@ if(discord){
 
     const bloqueado = localStorage.getItem("postulante_" + discord);
 
-    // ✔ SOLO bloquea si el sistema está abierto
     if(bloqueado === "si" && estado === "abierta"){
         yaPostulo = true;
     }
 }
 
-// =========================
-// BLOQUEO PRINCIPAL
-// =========================
+/* =========================
+   BLOQUEO PRINCIPAL
+========================= */
 
 if(yaPostulo && estado === "abierta"){
 
@@ -203,9 +208,17 @@ contenedor.innerHTML += bloque;
 
 }
 
-// =========================
-// ENVIAR FORMULARIO
-// =========================
+/* =========================
+   🔥 SINCRONIZACIÓN EN TIEMPO REAL
+========================= */
+
+window.addEventListener("storage", () => {
+    location.reload();
+});
+
+/* =========================
+   ENVIAR FORMULARIO
+========================= */
 
 function enviar(){
 
@@ -217,10 +230,8 @@ alert("Completa los datos.");
 return;
 }
 
-// 🔥 guardar identidad
 localStorage.setItem("discord_usuario", discordInput);
 
-// 🔥 evitar doble envío
 if(localStorage.getItem("postulante_" + discordInput) === "si"){
 alert("Ya enviaste una postulación.");
 return;
@@ -259,19 +270,13 @@ estado:"Pendiente"
 
 localStorage.setItem("postulaciones", JSON.stringify(postulaciones));
 
-// 🔥 marcar como postulado
 localStorage.setItem("postulante_" + discordInput, "si");
-
-// =========================
-// MENSAJE FINAL
-// =========================
 
 document.getElementById("contenido").innerHTML = `
 <div class="card">
 <div class="gracias">
 🎉 ¡Postulación enviada con éxito!<br><br>
-Gracias por completar el formulario.<br>
-Tu solicitud ha sido registrada correctamente.
+Gracias por completar el formulario.
 </div>
 </div>
 `;
@@ -280,5 +285,7 @@ Tu solicitud ha sido registrada correctamente.
 
 </script>
 
+</body>
+</html>
 </body>
 </html>
