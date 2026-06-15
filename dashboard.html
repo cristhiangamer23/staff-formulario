@@ -207,24 +207,22 @@ function abrirPostulacion(){
 
 /*
 ==================================
-🔴 BOTÓN REINICIO TOTAL
+🔴 CERRAR Y REINICIAR TODO
 ==================================
 */
 function cerrarPostulacion(){
 
-    localStorage.setItem(
-        "estado_postulacion",
-        "cerrada"
-    );
+    localStorage.setItem("estado_postulacion", "cerrada");
 
-    // 🔥 BORRAR TODO
+    // 🧹 LIMPIAR BASE DE DATOS LOCAL
     localStorage.removeItem("postulaciones");
     localStorage.removeItem("calificaciones");
+    localStorage.removeItem("resultados");
 
     actualizarEstado();
     cargarEstadisticas();
 
-    alert("Postulación cerrada y sistema reiniciado correctamente.");
+    alert("🔴 Postulaciones cerradas y sistema reiniciado completamente.");
 }
 
 function cargarEstadisticas(){
