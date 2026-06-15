@@ -55,12 +55,9 @@ input, textarea{
     margin-top:6px;
     border-radius:8px;
     border:1px solid #d1d5db;
-    outline:none;
 }
 
-textarea{
-    resize:none;
-}
+textarea{ resize:none; }
 
 .option{
     margin-top:10px;
@@ -107,25 +104,34 @@ button:hover{
 
 const contenido = document.getElementById("contenido");
 
-/* 🔥 ESTADO CORREGIDO */
+/* =========================
+   ESTADO DEL SISTEMA
+========================= */
 let estado = localStorage.getItem("estado_postulacion");
-
-if(!estado){
-    estado = "cerrada";
-}
+if(!estado) estado = "cerrada";
 
 const preguntas = JSON.parse(localStorage.getItem("preguntas")) || [];
 
-// 🔥 identidad usuario
+/* =========================
+   USUARIO
+========================= */
 const discord = localStorage.getItem("discord_usuario");
 
+/* =========================
+   🔥 LÓGICA CORREGIDA
+========================= */
 let yaPostulo = false;
 
-if(discord){
+/*
+✔ SOLO bloquea si:
+- está abierta
+- y ya envió postulación
+*/
+if(estado === "abierta" && discord){
 
     const bloqueado = localStorage.getItem("postulante_" + discord);
 
-    if(bloqueado === "si" && estado === "abierta"){
+    if(bloqueado === "si"){
         yaPostulo = true;
     }
 }
@@ -165,10 +171,10 @@ let html = `
 <div class="subtitle">Buenos Aires RP</div>
 
 <label>Nombre</label>
-<input id="nombre" placeholder="Tu nombre">
+<input id="nombre">
 
 <label>Discord</label>
-<input id="discord" placeholder="usuario#0000">
+<input id="discord">
 
 <div id="preguntas"></div>
 
@@ -183,22 +189,17 @@ const contenedor = document.getElementById("preguntas");
 
 preguntas.forEach((p,index)=>{
 
-let bloque = `
-<label>${index+1}. ${p.texto}</label>
-`;
+let bloque = `<label>${index+1}. ${p.texto}</label>`;
 
 if(p.tipo === "texto"){
-bloque += `
-<textarea id="respuesta_${index}" placeholder="Escribe tu respuesta"></textarea>
-`;
+bloque += `<textarea id="respuesta_${index}"></textarea>`;
 }else{
 p.opciones.forEach(op=>{
 bloque += `
 <div class="option">
 <input type="radio" name="respuesta_${index}" value="${op}">
 ${op}
-</div>
-`;
+</div>`;
 });
 }
 
@@ -209,12 +210,18 @@ contenedor.innerHTML += bloque;
 }
 
 /* =========================
-   🔥 SINCRONIZACIÓN EN TIEMPO REAL
+   🔥 RESET AUTOMÁTICO AL CERRAR
 ========================= */
 
-window.addEventListener("storage", () => {
-    location.reload();
+function limpiarPostulantes(){
+
+Object.keys(localStorage).forEach(key => {
+    if(key.startsWith("postulante_")){
+        localStorage.removeItem(key);
+    }
 });
+
+}
 
 /* =========================
    ENVIAR FORMULARIO
@@ -246,8 +253,8 @@ let respuesta = "";
 if(p.tipo === "texto"){
 respuesta = document.getElementById(`respuesta_${index}`).value;
 }else{
-const seleccionada = document.querySelector(`input[name="respuesta_${index}"]:checked`);
-if(seleccionada) respuesta = seleccionada.value;
+const sel = document.querySelector(`input[name="respuesta_${index}"]:checked`);
+if(sel) respuesta = sel.value;
 }
 
 respuestas.push({
@@ -257,7 +264,7 @@ respuesta
 
 });
 
-const postulaciones = JSON.parse(localStorage.getItem("postulaciones")) || [];
+let postulaciones = JSON.parse(localStorage.getItem("postulaciones")) || [];
 
 postulaciones.push({
 id:Date.now(),
@@ -275,8 +282,7 @@ localStorage.setItem("postulante_" + discordInput, "si");
 document.getElementById("contenido").innerHTML = `
 <div class="card">
 <div class="gracias">
-🎉 ¡Postulación enviada con éxito!<br><br>
-Gracias por completar el formulario.
+🎉 ¡Postulación enviada con éxito!
 </div>
 </div>
 `;
